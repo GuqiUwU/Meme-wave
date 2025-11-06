@@ -19,6 +19,7 @@
     // Dark theme, 2 pages: Feed / Game
     // Integrates multiple overseas + domestic sources with automatic fallback & retry logic.
     // Added: Time filter (All, Today, Week, Month) — client-side based on meme dates where available.
+    // Added: Click on feed images to view full size in modal.
     // NOTE: This is still a front-end-only demo. CORS and API keys may be required for some sources.
     // Usage: Open index.html in browser (use dev proxy for CORS if needed).
 
@@ -32,6 +33,7 @@
       const [activeTab, setActiveTab] = useState("foreign");
       const [timeFilter, setTimeFilter] = useState("all");
       const [error, setError] = useState(null);
+      const [selectedMeme, setSelectedMeme] = useState(null);
 
       useEffect(() => {
         loadFeeds();
@@ -98,17 +100,22 @@
                 setActiveTab={setActiveTab}
                 timeFilter={timeFilter}
                 setTimeFilter={setTimeFilter}
+                selectedMeme={selectedMeme}
+                setSelectedMeme={setSelectedMeme}
               />
             ) : (
               <GamePage feedImages={filteredFeed} onBack={() => setRoute("feed")} />
             )}
-            <footer className="mt-8 text-sm text-gray-500">前端演示 — 已接入多个来源（见代码注释）。若无法显示图片，通常是 CORS 或需 API Key。可在本地用 dev proxy 解决。新增时间筛选（基于可用日期字段）。</footer>
+            {selectedMeme && (
+              <ImageModal meme={selectedMeme} onClose={() => setSelectedMeme(null)} />
+            )}
+            <footer className="mt-8 text-sm text-gray-500">前端演示 — 已接入多个来源（见代码注释）。若无法显示图片，通常是 CORS 或需 API Key。可在本地用 dev proxy 解决。新增时间筛选（基于可用日期字段）及图片点击查看大图。</footer>
           </main>
         </div>
       );
     }
 
-    function FeedPage({ loading, error, filteredFeed, activeTab, setActiveTab, timeFilter, setTimeFilter }) {
+    function FeedPage({ loading, error, filteredFeed, activeTab, setActiveTab, timeFilter, setTimeFilter, selectedMeme, setSelectedMeme }) {
       return (
         <section>
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
@@ -135,7 +142,7 @@
           {error && <div className="py-4 text-red-400">{error}</div>}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {filteredFeed.map((m) => (
-              <MemeCard key={m.id} meme={m} />
+              <MemeCard key={m.id} meme={m} onClick={() => setSelectedMeme(m)} />
             ))}
           </div>
           {filteredFeed.length === 0 && !loading && (
@@ -153,10 +160,13 @@
       );
     }
 
-    function MemeCard({ meme }) {
+    function MemeCard({ meme, onClick }) {
       const [show, setShow] = useState(false);
       return (
-        <article className="bg-gray-800 p-2 rounded shadow-sm overflow-hidden hover:scale-[1.01] transition-transform">
+        <article 
+          className="bg-gray-800 p-2 rounded shadow-sm overflow-hidden hover:scale-[1.01] transition-transform cursor-pointer" 
+          onClick={onClick}
+        >
           <div className="relative w-full h-48 bg-gray-700 rounded overflow-hidden">
             <img
               src={meme.url}
@@ -175,6 +185,31 @@
             </div>
           </div>
         </article>
+      );
+    }
+
+    function ImageModal({ meme, onClose }) {
+      return (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+          <div className="relative max-w-4xl max-h-full p-4">
+            <button 
+              onClick={onClose} 
+              className="absolute top-2 right-2 text-white text-4xl font-bold z-10 px-2 py-1 rounded hover:bg-gray-800 transition-colors"
+            >
+              ×
+            </button>
+            <img 
+              src={meme.url} 
+              alt={meme.title} 
+              className="max-w-full max-h-[90vh] object-contain rounded shadow-lg"
+            />
+            <div className="mt-4 text-center text-white">
+              <h3 className="text-lg font-semibold">{meme.title}</h3>
+              <p className="text-sm text-gray-300">{meme.source || "source"}</p>
+              {meme.date && <p className="text-sm text-gray-400">{meme.date}</p>}
+            </div>
+          </div>
+        </div>
       );
     }
 
