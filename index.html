@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MemeWave</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Custom styles if needed beyond Tailwind */
+  </style>
+</head>
+<body class="bg-gray-900 text-gray-100 font-sans min-h-screen">
+  <div id="root"></div>
+  <script type="text/babel">
+    // MemeWave — single-file React front-end (standalone HTML version)
+    // Dark theme, 2 pages: Feed / Anime
+    // Integrates multiple overseas + domestic sources with automatic fallback & retry logic.
+    // Added: Time filter (All, Today, Week, Month) — client-side based on meme dates where available.
+    // Updated: Removed game (梗猎手). Added "作者在看的番" page with Onimai anime, clickable to official site.
+    // Fixed: Onimai image URL to user-provided Bing thumbnail.
+    // Updated: Onimai official site to https://onimai.jp/
+    // Updated: Meme cards are now clickable to open the image URL in a new tab.
+    // NOTE: This is still a front-end-only demo. CORS and API keys may be required for some sources.
+    // Usage: Open index.html in browser (use dev proxy for CORS if needed).
+
+    const { useEffect, useState, useMemo } = React;
+
+    function MemeWaveApp() {
+      const [route, setRoute] = useState("feed");
+      const [foreignFeed, setForeignFeed] = useState([]);
+      const [domesticFeed, setDomesticFeed] = useState([]);
+      const [loading, setLoading] = useState(false);
+      const [activeTab, setActiveTab] = useState("foreign");
+      const [timeFilter, setTimeFilter] = useState("all");
+      const [error, setError] = useState(null);
+
+      useEffect(() => {
+        loadFeeds();
+      }, []);
+
+      async function loadFeeds() {
+        setLoading(true);
+        setError(null);
+        try {
+          const fImgs = await tryFetchForeignImages();
+          const dImgs = await tryFetchDomesticImages();
+          // ensure results are arrays of {id, title, url, source, date?}
+          setForeignFeed(shuffleArray(fImgs).slice(0, 80));
+          setDomesticFeed(shuffleArray(dImgs).slice(0, 80));
+        } catch (e) {
+          console.error(e);
+          setError("加载部分梗失败，请检查控制台。可能是 CORS 或接口需要 API Key。");
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      const currentFeed = activeTab === "foreign" ? foreignFeed : domesticFeed;
+
+      const filteredFeed = useMemo(() => {
+        const now = new Date();
+        return currentFeed.filter((m) => {
+          if (timeFilter === "all" || !m.date) return true;
+          const mDate = new Date(m.date);
+          switch (timeFilter) {
+            case "today":
+              return mDate.toDateString() === now.toDateString();
+            case "week":
+              return mDate > new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            case "month":
+              return mDate > new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            default:
+              return true;
+          }
+        });
+      }, [currentFeed, timeFilter]);
+
+      return (
+        <div className="min-h-screen bg-gray-900 text-gray-100 font-sans">
+          <header className="p-4 flex items-center justify-between border-b border-gray-800">
+            <h1 className="text-2xl font-bold tracking-tight">MemeWave</h1>
+            <nav className="flex items-center gap-2">
+              <button onClick={() => setRoute("feed")} className={`px-3 py-1 rounded-md ${route === "feed" ? "bg-gray-800" : "bg-transparent"}`}>
+                热梗墙
+              </button>
+              <button onClick={() => setRoute("anime")} className={`px-3 py-1 rounded-md ${route === "anime" ? "bg-gray-800" : "bg-transparent"}`}>
+                作者在看的番
+              </button>
+              <button onClick={loadFeeds} className="px-3 py-1 rounded-md bg-gray-800 ml-2">刷新梗</button>
+            </nav>
+          </header>
+          <main className="p-6">
+            {route === "feed" ? (
+              <FeedPage
+                loading={loading}
+                error={error}
+                filteredFeed={filteredFeed}
+                activeTab={activeTab}
+                setActiveTab={setActiveTab}
+                timeFilter={timeFilter}
+                setTimeFilter={setTimeFilter}
+              />
+            ) : (
+              <AnimePage onBack={() => setRoute("feed")} />
+            )}
+            <footer className="mt-8 text-sm text-gray-500">前端演示 — 已接入多个来源（见代码注释）。若无法显示图片，通常是 CORS 或需 API Key。可在本地用 dev proxy 解决。新增时间筛选（基于可用日期字段）。国内梗优先 memes.tw API。作者在看的番：Onimai（点击进入官网）。梗图卡片可点击查看大图。</footer>
+          </main>
+        </div>
+      );
+    }
+
+    function FeedPage({ loading, error, filteredFeed, activeTab, setActiveTab, timeFilter, setTimeFilter }) {
+      return (
+        <section>
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <div className="flex gap-2">
+              <Tab label="海外" active={activeTab === "foreign"} onClick={() => setActiveTab("foreign")} />
+              <Tab label="国内" active={activeTab === "domestic"} onClick={() => setActiveTab("domestic")} />
+            </div>
+            <div className="flex items-center gap-2">
+              <label className="text-sm text-gray-400">时间筛选：</label>
+              <select
+                value={timeFilter}
+                onChange={(e) => setTimeFilter(e.target.value)}
+                className="px-2 py-1 rounded bg-gray-800 text-sm"
+              >
+                <option value="all">全部</option>
+                <option value="today">今天</option>
+                <option value="week">一周内</option>
+                <option value="month">一月内</option>
+              </select>
+            </div>
+            <div className="text-sm text-gray-400">多来源合并 · 纯前端</div>
+          </div>
+          {loading && <div className="py-12 text-center">抓梗中... 🍜</div>}
+          {error && <div className="py-4 text-red-400">{error}</div>}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {filteredFeed.map((m) => (
+              <MemeCard key={m.id} meme={m} />
+            ))}
+          </div>
+          {filteredFeed.length === 0 && !loading && (
+            <div className="py-12 text-center text-gray-400">无匹配结果，尝试调整筛选或刷新。</div>
+          )}
+        </section>
+      );
+    }
+
+    function Tab({ label, active, onClick }) {
+      return (
+        <button onClick={onClick} className={`px-3 py-1 rounded ${active ? "bg-indigo-600 text-white" : "bg-gray-800"}`}>
+          {label}
+        </button>
+      );
+    }
+
+    function MemeCard({ meme }) {
+      const [show, setShow] = useState(false);
+
+      const handleClick = (e) => {
+        e.preventDefault();
+        window.open(meme.url, '_blank');
+      };
+
+      return (
+        <article 
+          className="bg-gray-800 p-2 rounded shadow-sm overflow-hidden hover:scale-[1.01] transition-transform cursor-pointer"
+          onClick={handleClick}
+        >
+          <div className="relative w-full h-48 bg-gray-700 rounded overflow-hidden">
+            <img
+              src={meme.url}
+              alt={meme.title}
+              className="w-full h-full object-cover"
+              onLoad={() => setShow(true)}
+              onError={() => setShow(true)}
+            />
+            {!show && <div className="absolute inset-0 flex items-center justify-center">加载中...</div>}
+          </div>
+          <div className="mt-2">
+            <div className="text-sm font-semibold truncate">{meme.title}</div>
+            <div className="text-xs text-gray-400 flex justify-between">
+              <span>{meme.source || "source"}</span>
+              {meme.date && <span className="text-gray-500">{new Date(meme.date).toLocaleDateString('zh-CN')}</span>}
+            </div>
+          </div>
+        </article>
+      );
+    }
+
+    function AnimePage({ onBack }) {
+      const animes = [
+        {
+          id: "onimai",
+          title: "Onimai: I'm Now Your Sister! (お兄ちゃんはおしまい！)",
+          description: "一个关于兄妹关系的搞笑动画，作者目前在追中。",
+          image: "https://tse4.mm.bing.net/th/id/OIP.uFVmquY49ImPRvhtYB5SeQHaKb?rs=1&pid=ImgDetMain&o=7&rm=3", // Updated to user-provided Bing image
+          officialSite: "https://onimai.jp/" // Official site
+        }
+        // 可以添加更多动画
+      ];
+
+      const handleClick = (site) => {
+        window.open(site, '_blank');
+      };
+
+      return (
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <button onClick={onBack} className="px-3 py-1 rounded bg-gray-800">返回</button>
+              <div className="text-lg font-semibold">作者在看的番</div>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {animes.map((anime) => (
+              <div
+                key={anime.id}
+                className="bg-gray-800 p-4 rounded shadow-sm overflow-hidden cursor-pointer hover:bg-gray-700 transition-colors"
+                onClick={() => handleClick(anime.officialSite)}
+              >
+                <div className="relative w-full h-64 bg-gray-700 rounded overflow-hidden mb-4">
+                  <img
+                    src={anime.image}
+                    alt={anime.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.src = "https://via.placeholder.com/300x400/374151/9CA3AF?text=Onimai"; // Fallback placeholder
+                    }}
+                  />
+                </div>
+                <div className="text-center">
+                  <h3 className="text-xl font-semibold mb-2">{anime.title}</h3>
+                  <p className="text-sm text-gray-400 mb-4">{anime.description}</p>
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent card click
+                      handleClick(anime.officialSite);
+                    }}
+                    className="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700"
+                  >
+                    进入官网
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 text-sm text-gray-500">点击卡片或按钮跳转至动画官网。更多番剧可后续添加。Onimai 图片已更新。</div>
+        </section>
+      );
+    }
+
+    // -------------------------- Fetching and source logic --------------------------
+    // Helpers: timeout fetch
+    async function fetchWithTimeout(url, opts = {}, timeout = 8000) {
+      const controller = new AbortController();
+      const id = setTimeout(() => controller.abort(), timeout);
+      try {
+        const res = await fetch(url, { ...opts, signal: controller.signal });
+        clearTimeout(id);
+        return res;
+      } finally {
+        clearTimeout(id);
+      }
+    }
+
+    async function tryFetchSources(sources) {
+      // sources: [{name, url, parser: async (resp)=>[] , method?, headers?, resType?}]
+      for (const s of sources) {
+        try {
+          const res = await fetchWithTimeout(s.url, { method: s.method || "GET", headers: s.headers || {} }, s.timeout || 9000);
+          if (!res.ok) throw new Error(`${s.name} status ${res.status}`);
+          const data = await res[s.resType || "json"]();
+          const imgs = await s.parser(data);
+          if (Array.isArray(imgs) && imgs.length > 0) {
+            console.info(`source ${s.name} success, got ${imgs.length}`);
+            return imgs;
+          }
+        } catch (e) {
+          console.warn(`source ${s.name} failed:`, e);
+          // try next
+        }
+      }
+      return [];
+    }
+
+    async function tryFetchForeignImages() {
+      // Define multiple overseas sources with parsers (enhanced with date where possible)
+      const sources = [
+        // Meme API (D3vd) - simple gimme endpoint (no date available)
+        {
+          name: "MemeAPI_gimme",
+          url: "https://meme-api.com/gimme/50",
+          parser: async (d) => {
+            // if gimme returns a list or single
+            const arr = Array.isArray(d.memes || d) ? (d.memes || d) : (d ? [d] : []);
+            const out = (arr || []).map((p, i) => ({ 
+              id: p.postLink || `memeapi-${i}`, 
+              title: p.title || "meme", 
+              url: p.url, 
+              source: p.subreddit || "meme-api",
+              date: null // no date in response
+            })).filter(x => x.url);
+            return out;
+          },
+        },
+        // Imgflip templates (not user memes but usable, no date)
+        {
+          name: "Imgflip_templates",
+          url: "https://api.imgflip.com/get_memes",
+          parser: async (d) => {
+            const memes = d?.data?.memes || [];
+            return memes.map((m) => ({ 
+              id: m.id, 
+              title: m.name, 
+              url: m.url, 
+              source: "imgflip",
+              date: null
+            }));
+          },
+        },
+        // Reddit top r/memes (with date from created_utc)
+        {
+          name: "Reddit_r_memes",
+          url: "https://www.reddit.com/r/memes/top.json?limit=50&t=day",
+          parser: async (d) => {
+            const children = d?.data?.children || [];
+            const out = [];
+            for (const c of children) {
+              const post = c.data;
+              const url = post.preview?.images?.[0]?.source?.url?.replace(/&amp;/g, "&") || post.url;
+              if (url && (url.endsWith('.jpg') || url.endsWith('.png') || url.includes('i.redd.it') || url.includes('i.imgur.com') || url.startsWith('http'))) {
+                const date = post.created_utc ? new Date(post.created_utc * 1000).toISOString().split('T')[0] : null;
+                out.push({ id: post.id, title: post.title, url, source: `r/${post.subreddit}`, date });
+              }
+            }
+            return out;
+          },
+        },
+        // Reddit r/dankmemes (with date)
+        {
+          name: "Reddit_dank",
+          url: "https://www.reddit.com/r/dankmemes/top.json?limit=50&t=day",
+          parser: async (d) => {
+            const children = d?.data?.children || [];
+            const out = [];
+            for (const c of children) {
+              const post = c.data;
+              const url = post.preview?.images?.[0]?.source?.url?.replace(/&amp;/g, "&") || post.url;
+              if (url) {
+                const date = post.created_utc ? new Date(post.created_utc * 1000).toISOString().split('T')[0] : null;
+                out.push({ id: post.id, title: post.title, url, source: `r/${post.subreddit}`, date });
+              }
+            }
+            return out;
+          },
+        },
+        // Placeholder static pics (picsum) as last resort (no date)
+        {
+          name: "picsum_fallback",
+          url: "https://picsum.photos/v2/list?page=2&limit=50",
+          parser: async (d) => {
+            return (d || []).map((p) => ({ 
+              id: `picsum-${p.id}`, 
+              title: p.author || "picsum", 
+              url: `https://picsum.photos/id/${p.id}/800/600`, 
+              source: "picsum",
+              date: null
+            }));
+          },
+          resType: 'json'
+        },
+      ];
+      return await tryFetchSources(sources);
+    }
+
+    async function tryFetchDomesticImages() {
+      // Domestic sources — Prioritize memes.tw API for actual memes.
+      // Enhanced with date where possible.
+      // Fill in YOUR_API_KEY where needed or use a server-side proxy.
+      const sources = [
+        // Memes.tw API - Today's popular memes
+        {
+          name: "MemesTW_hot",
+          url: "https://memes.tw/wtf/api",
+          parser: async (d) => {
+            return (d || []).map((p) => ({
+              id: `memestw-${p.id}`,
+              title: p.title || "meme",
+              url: p.src,
+              source: "memes.tw",
+              date: p.created_at ? new Date(p.created_at.timestamp * 1000).toISOString().split('T')[0] : null
+            })).filter(x => x.url && x.url.startsWith('http'));
+          },
+        },
+        // B站/哔哩哔哩 视频热榜 — with pubdate (cover images)
+        {
+          name: "Bilibili_hot_videos",
+          url: "https://api.bilibili.com/x/web-interface/ranking?rid=0&day=3&jsonp=jsonp",
+          parser: async (d) => {
+            const list = d?.data?.list || [];
+            return list.map((v, i) => {
+              const url = v?.pic || `https://i0.hdslb.com/bfs/archive/${v?.bvid || ''}.jpg`;
+              const date = v?.pubdate ? new Date(v.pubdate * 1000).toISOString().split('T')[0] : null;
+              return { id: v?.aid || `b-${i}`, title: v?.title || "b站", url, source: "bilibili", date };
+            }).filter(x => x.url);
+          },
+        },
+        // Fallback: use picsum (no date)
+        {
+          name: "picsum_dom_fallback",
+          url: "https://picsum.photos/v2/list?page=5&limit=50",
+          parser: async (d) => {
+            return (d || []).map((p) => ({ 
+              id: `picsum-d-${p.id}`, 
+              title: p.author || "picsum", 
+              url: `https://picsum.photos/id/${p.id}/800/600`, 
+              source: "picsum",
+              date: null
+            }));
+          },
+          resType: 'json'
+        },
+        // Custom user-provided JSON endpoint (you can point this to your own proxy that scrapes Chinese platforms)
+        {
+          name: "custom_user_json",
+          url: window.__MEMEWAVE_CUSTOM_JSON_URL || "https://yourdomain.com/memes.json",
+          parser: async (d) => {
+            // Expect array of {title, url, date?}
+            if (!Array.isArray(d)) return [];
+            return d.map((it, i) => ({ 
+              id: it.id || `custom-${i}`, 
+              title: it.title || it.text || 'custom', 
+              url: it.url, 
+              source: 'custom',
+              date: it.date || null
+            })).filter(x => x.url);
+          },
+        },
+      ];
+      return await tryFetchSources(sources);
+    }
+
+    // Utilities
+    function shuffleArray(a) {
+      const arr = [...a];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    // Render the app
+    ReactDOM.render(<MemeWaveApp />, document.getElementById('root'));
+  </script>
+</body>
+</html>
