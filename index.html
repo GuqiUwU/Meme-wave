@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MemeWave - made by Giu Giu</title>
+  <link rel="icon" href="https://tse4.mm.bing.net/th/id/OIP.piRzWtMCSbpX-WL21vFMSgAAAA?rs=1&pid=ImgDetMain&o=7&rm=3" type="image/jpeg">
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -24,6 +25,9 @@
     // Added: Infinite scroll — load more when scroll to bottom.
     // Added: Background caching — preload inactive tab in background every 10s if <200 items.
     // Added: Language switcher (ZH/EN) in header.
+    // Added: Credits page with production staff list.
+    // Added: Boy Kisser button in header — image-only, clicks to modal with full Boy Kisser emoji image.
+    // Updated: Domestic sources now include Bilibili as fallback (memes.tw is JS-heavy, may not load images via fetch).
     // NOTE: This is still a front-end-only demo. CORS and API keys may be required for some sources.
     // Usage: Open index.html in browser (use dev proxy for CORS if needed).
     const { useEffect, useState, useRef, useMemo, useCallback } = React;
@@ -37,6 +41,7 @@
       const [timeFilter, setTimeFilter] = useState("all");
       const [error, setError] = useState(null);
       const [selectedMeme, setSelectedMeme] = useState(null);
+      const [showBoyKisser, setShowBoyKisser] = useState(false);
       const [hasMoreForeign, setHasMoreForeign] = useState(false);
       const [hasMoreDomestic, setHasMoreDomestic] = useState(false);
       const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -128,6 +133,8 @@
             title: "MemeWave",
             hotMemes: "热梗墙",
             animeWatching: "作者在看的番",
+            credits: "制作名单",
+            boyKisser: "Boy Kisser",
             refresh: "刷新梗",
             overseas: "海外",
             domestic: "国内",
@@ -143,7 +150,7 @@
             multiSource: "多来源合并 · 纯前端",
             back: "返回",
             animeTitle: "作者在看的番",
-            footer: "前端演示 — 已接入多个来源（见代码注释）。若无法显示图片，通常是 CORS 或需 API Key。可在本地用 dev proxy 解决。新增时间筛选（基于可用日期字段）及图片点击查看大图。新增无限滚动加载及后台缓存预加载。",
+            footer: "前端演示 — 已接入多个来源（见代码注释）。若无法显示图片，通常是 CORS 或需 API Key。可在本地用 dev proxy 解决。新增时间筛选（基于可用日期字段）及图片点击查看大图。新增无限滚动加载及后台缓存预加载。国内来源：memes.tw (静态抓取有限) + Bilibili 动态图片。",
             animeDesc: "当宅男哥哥不小心用可疑药物把自己的哥哥变成了女孩子后，展开的爆笑日常故事。",
             episodes: "Season 1",
             status: "Watching",
@@ -153,6 +160,8 @@
             title: "MemeWave",
             hotMemes: "Hot Memes",
             animeWatching: "Anime I'm Watching",
+            credits: "Credits",
+            boyKisser: "Boy Kisser",
             refresh: "Refresh Memes",
             overseas: "Overseas",
             domestic: "Domestic",
@@ -168,7 +177,7 @@
             multiSource: "Multi-source · Pure Frontend",
             back: "Back",
             animeTitle: "Anime I'm Watching",
-            footer: "Frontend demo — Integrated multiple sources (see code comments). If images fail to load, it's usually CORS or API Key needed. Solve with local dev proxy. Added time filtering (based on available date fields) and image click to view full size. Added infinite scroll and background caching preload.",
+            footer: "Frontend demo — Integrated multiple sources (see code comments). If images fail to load, it's usually CORS or API Key needed. Solve with local dev proxy. Added time filtering (based on available date fields) and image click to view full size. Added infinite scroll and background caching preload. Domestic: memes.tw (limited static scrape) + Bilibili dynamic images.",
             animeDesc: "After a shut-in brother accidentally turns his brother into a girl with suspicious drugs, an explosive daily life story unfolds.",
             episodes: "Season 1",
             status: "Watching",
@@ -176,6 +185,12 @@
           }
         };
         return translations[lang][key] || key;
+      };
+      const boyKisserMeme = {
+        id: "boykisser",
+        title: t('boyKisser'),
+        url: "https://tse4.mm.bing.net/th/id/OIP.piRzWtMCSbpX-WL21vFMSgAAAA?rs=1&pid=ImgDetMain&o=7&rm=3",
+        source: "Boy Kisser"
       };
       return (
         <div className="min-h-screen bg-gray-900 text-gray-100 font-sans">
@@ -188,12 +203,26 @@
               <button onClick={() => setRoute("anime")} className={`px-3 py-1 rounded-md ${route === "anime" ? "bg-gray-800" : "bg-transparent"}`}>
                 {t('animeWatching')}
               </button>
+              <button onClick={() => setRoute("credits")} className={`px-3 py-1 rounded-md ${route === "credits" ? "bg-gray-800" : "bg-transparent"}`}>
+                {t('credits')}
+              </button>
               <button onClick={loadFeeds} className="px-3 py-1 rounded-md bg-gray-800 ml-2">{t('refresh')}</button>
-              <button 
-                onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} 
+              <button
+                onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')}
                 className="px-3 py-1 rounded-md bg-indigo-600 ml-2 text-sm"
               >
                 {lang === 'zh' ? 'EN' : 'ZH'}
+              </button>
+              <button
+                onClick={() => setShowBoyKisser(true)}
+                className="p-1 rounded hover:bg-gray-800 transition-colors ml-2"
+                title={t('boyKisser')}
+              >
+                <img
+                  src="https://tse4.mm.bing.net/th/id/OIP.piRzWtMCSbpX-WL21vFMSgAAAA?rs=1&pid=ImgDetMain&o=7&rm=3"
+                  alt={t('boyKisser')}
+                  className="w-8 h-8 rounded"
+                />
               </button>
             </nav>
           </header>
@@ -214,15 +243,40 @@
                 isLoadingMore={isLoadingMore}
                 t={t}
               />
+            ) : route === "credits" ? (
+              <CreditsPage onBack={() => setRoute("feed")} t={t} />
             ) : (
               <AnimePage onBack={() => setRoute("feed")} t={t} />
             )}
             {selectedMeme && (
               <ImageModal meme={selectedMeme} onClose={() => setSelectedMeme(null)} t={t} />
             )}
+            {showBoyKisser && (
+              <ImageModal meme={boyKisserMeme} onClose={() => setShowBoyKisser(false)} t={t} />
+            )}
             <footer className="mt-8 text-sm text-gray-500">{t('footer')}</footer>
           </main>
         </div>
+      );
+    }
+    function CreditsPage({ onBack, t }) {
+      return (
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <button onClick={onBack} className="px-3 py-1 rounded bg-gray-800">{t('back')}</button>
+              <div className="text-lg font-semibold">{t('credits')}</div>
+            </div>
+          </div>
+          <div className="bg-gray-800 p-6 rounded shadow-sm">
+            <h2 className="text-xl font-bold mb-4">Production Staff</h2>
+            <ul className="space-y-2 text-sm">
+              <li><strong>Author:</strong> Giu Giu</li>
+              <li><strong>Helpers:</strong> GPT and Grok (just API)</li>
+              <li><strong>IDK:</strong> IDK</li>
+            </ul>
+          </div>
+        </section>
       );
     }
     function FeedPage({ loading, error, filteredFeed, activeTab, setActiveTab, timeFilter, setTimeFilter, selectedMeme, setSelectedMeme, loadMore, hasMore, isLoadingMore, t }) {
@@ -498,7 +552,7 @@
       return await tryFetchSources(sources);
     }
     async function tryFetchDomesticImages() {
-      // Domestic sources — using memes.tw only, with CORS proxy
+      // Domestic sources — memes.tw (may be limited due to JS rendering) + Bilibili dynamic images
       const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
       const targetUrl = 'https://memes.tw/';
       const sources = [
@@ -550,7 +604,52 @@
               }
             }
             console.log(`Parsed ${out.length} memes from memes.tw. Sample:`, out.slice(0, 2));
+            if (out.length === 0) {
+              console.warn("No images from memes.tw - site likely JS-heavy, consider browser extension or proxy for full render.");
+            }
             return out.filter(x => x.url && x.url.length > 10 && !x.url.includes('data:image'));
+          },
+        },
+        {
+          name: "Bilibili_dynamic",
+          url: "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/all?type=1688&pn=1", // type=1688 for image-only dynamics
+          headers: {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+          },
+          parser: async (d) => {
+            const items = d?.data?.items || [];
+            const out = [];
+            for (const item of items) {
+              const modules = item?.modules?.module_dynamic || {};
+              const major = modules?.major || {};
+              let pic = null;
+              let title = null;
+              // Check for draw (image post)
+              const draw = major?.draw || {};
+              if (draw?.items && draw.items.length > 0) {
+                pic = draw.items[0]?.src;
+                title = draw.desc || "Bili Meme";
+              }
+              // Fallback to archive cover (if it's a video with cover image)
+              if (!pic) {
+                const archive = major?.archive || {};
+                pic = archive?.cover;
+                title = archive?.title?.text || "Bili Post";
+              }
+              if (pic && (pic.includes('.jpg') || pic.includes('.png'))) {
+                const id = item.id_str || `bili-${Math.random().toString(36).substr(2, 9)}`;
+                const date = major?.time ? new Date(major.time * 1000).toDateString() : null;
+                out.push({
+                  id,
+                  title: title?.substring(0, 50) || "Bili Meme",
+                  url: pic,
+                  source: "bilibili",
+                  date
+                });
+              }
+            }
+            console.log(`Parsed ${out.length} memes from Bilibili. Sample:`, out.slice(0, 2));
+            return out;
           },
         },
       ];
