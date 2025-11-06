@@ -28,6 +28,9 @@
     // Added: Credits page with production staff list.
     // Added: Boy Kisser button in header — image-only, clicks to modal with full Boy Kisser emoji image.
     // Updated: Domestic sources now include Bilibili as fallback (memes.tw is JS-heavy, may not load images via fetch).
+    // Updated: Improved title extraction for Bilibili - use desc/title or user name + "的图片" as fallback for better titles.
+    // Updated: For memes.tw, fallback title to "台湾热梗 X" if no text found (though static parse may yield few results).
+    // Updated: Added "(Unstable)" label to Domestic tab button (lang-aware: "(不稳定)" for ZH).
     // NOTE: This is still a front-end-only demo. CORS and API keys may be required for some sources.
     // Usage: Open index.html in browser (use dev proxy for CORS if needed).
     const { useEffect, useState, useRef, useMemo, useCallback } = React;
@@ -138,6 +141,7 @@
             refresh: "刷新梗",
             overseas: "海外",
             domestic: "国内",
+            unstable: "(不稳定)",
             timeFilter: "时间筛选：",
             all: "全部",
             today: "今天",
@@ -150,7 +154,7 @@
             multiSource: "多来源合并 · 纯前端",
             back: "返回",
             animeTitle: "作者在看的番",
-            footer: "前端演示 — 已接入多个来源（见代码注释）。若无法显示图片，通常是 CORS 或需 API Key。可在本地用 dev proxy 解决。新增时间筛选（基于可用日期字段）及图片点击查看大图。新增无限滚动加载及后台缓存预加载。国内来源：memes.tw (静态抓取有限) + Bilibili 动态图片。",
+            footer: "前端演示 — 已接入多个来源（见代码注释）。若无法显示图片，通常是 CORS 或需 API Key。可在本地用 dev proxy 解决。新增时间筛选（基于可用日期字段）及图片点击查看大图。新增无限滚动加载及后台缓存预加载。国内来源：memes.tw (静态抓取有限) + Bilibili 动态图片（优化标题提取）。",
             animeDesc: "当宅男哥哥不小心用可疑药物把自己的哥哥变成了女孩子后，展开的爆笑日常故事。",
             episodes: "Season 1",
             status: "Watching",
@@ -165,6 +169,7 @@
             refresh: "Refresh Memes",
             overseas: "Overseas",
             domestic: "Domestic",
+            unstable: "(Unstable)",
             timeFilter: "Time Filter:",
             all: "All",
             today: "Today",
@@ -177,7 +182,7 @@
             multiSource: "Multi-source · Pure Frontend",
             back: "Back",
             animeTitle: "Anime I'm Watching",
-            footer: "Frontend demo — Integrated multiple sources (see code comments). If images fail to load, it's usually CORS or API Key needed. Solve with local dev proxy. Added time filtering (based on available date fields) and image click to view full size. Added infinite scroll and background caching preload. Domestic: memes.tw (limited static scrape) + Bilibili dynamic images.",
+            footer: "Frontend demo — Integrated multiple sources (see code comments). If images fail to load, it's usually CORS or API Key needed. Solve with local dev proxy. Added time filtering (based on available date fields) and image click to view full size. Added infinite scroll and background caching preload. Domestic: memes.tw (limited static scrape) + Bilibili dynamic images (improved title extraction).",
             animeDesc: "After a shut-in brother accidentally turns his brother into a girl with suspicious drugs, an explosive daily life story unfolds.",
             episodes: "Season 1",
             status: "Watching",
@@ -304,7 +309,11 @@
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
             <div className="flex gap-2">
               <Tab label={t('overseas')} active={activeTab === "foreign"} onClick={() => setActiveTab("foreign")} />
-              <Tab label={t('domestic')} active={activeTab === "domestic"} onClick={() => setActiveTab("domestic")} />
+              <Tab 
+                label={`${t('domestic')} ${t('unstable')}`} 
+                active={activeTab === "domestic"} 
+                onClick={() => setActiveTab("domestic")} 
+              />
             </div>
             <div className="flex items-center gap-2">
               <label className="text-sm text-gray-400">{t('timeFilter')}</label>
@@ -580,8 +589,8 @@
                 let parent = img.closest('article, .post, .entry, .meme, .item, .card, div[class*="post"], div[class*="entry"], section') || img.parentElement;
                 if (!parent) parent = img;
                 let titleEl = parent.querySelector('h1, h2, h3, h4, .title, .headline, .post-title, .entry-title, p, .caption') || img;
-                let title = (titleEl.textContent || titleEl.alt || titleEl.title || `Meme ${i + 1}`).trim().substring(0, 50);
-                if (!title || title.length < 3) title = `Meme ${i + 1}`;
+                let title = (titleEl.textContent || titleEl.alt || titleEl.title || `台湾热梗 ${i + 1}`).trim().substring(0, 50);
+                if (!title || title.length < 3) title = `台湾热梗 ${i + 1}`;
                 let dateEl = parent.querySelector('.date, .time, time, .published, [datetime], .post-date') || parent.querySelector('time');
                 let date = dateEl ? (dateEl.textContent || dateEl.getAttribute('datetime')).trim() : null;
                 if (date && !date.includes('Date')) date = new Date(date).toDateString() || date;
@@ -628,20 +637,26 @@
               const draw = major?.draw || {};
               if (draw?.items && draw.items.length > 0) {
                 pic = draw.items[0]?.src;
-                title = draw.desc || "Bili Meme";
+                title = draw.desc || null;
               }
               // Fallback to archive cover (if it's a video with cover image)
               if (!pic) {
                 const archive = major?.archive || {};
                 pic = archive?.cover;
-                title = archive?.title?.text || "Bili Post";
+                title = archive?.title?.text || null;
               }
               if (pic && (pic.includes('.jpg') || pic.includes('.png'))) {
                 const id = item.id_str || `bili-${Math.random().toString(36).substr(2, 9)}`;
+                // Improved title: prefer desc/title, fallback to user name + "的图片"
+                if (!title) {
+                  const user = item?.user || {};
+                  title = user.name ? `${user.name}的图片` : "Bili 动态";
+                }
+                title = title.substring(0, 50);
                 const date = major?.time ? new Date(major.time * 1000).toDateString() : null;
                 out.push({
                   id,
-                  title: title?.substring(0, 50) || "Bili Meme",
+                  title,
                   url: pic,
                   source: "bilibili",
                   date
