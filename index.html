@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MemeWave</title>
+  <title>MemeWave - made by Giu Giu</title>
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -16,17 +16,13 @@
   <div id="root"></div>
   <script type="text/babel">
     // MemeWave — single-file React front-end (standalone HTML version)
-    // Dark theme, 2 pages: Feed / Anime
+    // Dark theme, 2 pages: Feed / Game
     // Integrates multiple overseas + domestic sources with automatic fallback & retry logic.
     // Added: Time filter (All, Today, Week, Month) — client-side based on meme dates where available.
-    // Updated: Removed game (梗猎手). Added "作者在看的番" page with Onimai anime, clickable to official site.
-    // Fixed: Onimai image URL to user-provided Bing thumbnail.
-    // Updated: Onimai official site to https://onimai.jp/
-    // Updated: Meme cards are now clickable to open the image URL in a new tab.
     // NOTE: This is still a front-end-only demo. CORS and API keys may be required for some sources.
     // Usage: Open index.html in browser (use dev proxy for CORS if needed).
 
-    const { useEffect, useState, useMemo } = React;
+    const { useEffect, useState, useRef, useMemo } = React;
 
     function MemeWaveApp() {
       const [route, setRoute] = useState("feed");
@@ -86,8 +82,8 @@
               <button onClick={() => setRoute("feed")} className={`px-3 py-1 rounded-md ${route === "feed" ? "bg-gray-800" : "bg-transparent"}`}>
                 热梗墙
               </button>
-              <button onClick={() => setRoute("anime")} className={`px-3 py-1 rounded-md ${route === "anime" ? "bg-gray-800" : "bg-transparent"}`}>
-                作者在看的番
+              <button onClick={() => setRoute("game")} className={`px-3 py-1 rounded-md ${route === "game" ? "bg-gray-800" : "bg-transparent"}`}>
+                小游戏
               </button>
               <button onClick={loadFeeds} className="px-3 py-1 rounded-md bg-gray-800 ml-2">刷新梗</button>
             </nav>
@@ -104,9 +100,9 @@
                 setTimeFilter={setTimeFilter}
               />
             ) : (
-              <AnimePage onBack={() => setRoute("feed")} />
+              <GamePage feedImages={filteredFeed} onBack={() => setRoute("feed")} />
             )}
-            <footer className="mt-8 text-sm text-gray-500">前端演示 — 已接入多个来源（见代码注释）。若无法显示图片，通常是 CORS 或需 API Key。可在本地用 dev proxy 解决。新增时间筛选（基于可用日期字段）。国内梗优先 memes.tw API。作者在看的番：Onimai（点击进入官网）。梗图卡片可点击查看大图。</footer>
+            <footer className="mt-8 text-sm text-gray-500">前端演示 — 已接入多个来源（见代码注释）。若无法显示图片，通常是 CORS 或需 API Key。可在本地用 dev proxy 解决。新增时间筛选（基于可用日期字段）。</footer>
           </main>
         </div>
       );
@@ -159,17 +155,8 @@
 
     function MemeCard({ meme }) {
       const [show, setShow] = useState(false);
-
-      const handleClick = (e) => {
-        e.preventDefault();
-        window.open(meme.url, '_blank');
-      };
-
       return (
-        <article 
-          className="bg-gray-800 p-2 rounded shadow-sm overflow-hidden hover:scale-[1.01] transition-transform cursor-pointer"
-          onClick={handleClick}
-        >
+        <article className="bg-gray-800 p-2 rounded shadow-sm overflow-hidden hover:scale-[1.01] transition-transform">
           <div className="relative w-full h-48 bg-gray-700 rounded overflow-hidden">
             <img
               src={meme.url}
@@ -184,72 +171,95 @@
             <div className="text-sm font-semibold truncate">{meme.title}</div>
             <div className="text-xs text-gray-400 flex justify-between">
               <span>{meme.source || "source"}</span>
-              {meme.date && <span className="text-gray-500">{new Date(meme.date).toLocaleDateString('zh-CN')}</span>}
+              {meme.date && <span className="text-gray-500">{meme.date}</span>}
             </div>
           </div>
         </article>
       );
     }
 
-    function AnimePage({ onBack }) {
-      const animes = [
-        {
-          id: "onimai",
-          title: "Onimai: I'm Now Your Sister! (お兄ちゃんはおしまい！)",
-          description: "一个关于兄妹关系的搞笑动画，作者目前在追中。",
-          image: "https://tse4.mm.bing.net/th/id/OIP.uFVmquY49ImPRvhtYB5SeQHaKb?rs=1&pid=ImgDetMain&o=7&rm=3", // Updated to user-provided Bing image
-          officialSite: "https://onimai.jp/" // Official site
-        }
-        // 可以添加更多动画
-      ];
+    function GamePage({ feedImages, onBack }) {
+      const [running, setRunning] = useState(false);
+      const [score, setScore] = useState(0);
+      const [objects, setObjects] = useState([]);
+      const rafRef = useRef(null);
 
-      const handleClick = (site) => {
-        window.open(site, '_blank');
-      };
+      useEffect(() => {
+        return () => cancelAnimationFrame(rafRef.current || 0);
+      }, []);
+
+      function start() {
+        setScore(0);
+        setObjects(generateObjectsFromFeed(feedImages || []));
+        setRunning(true);
+        rafRef.current = requestAnimationFrame(tick);
+      }
+
+      function stop() {
+        setRunning(false);
+        cancelAnimationFrame(rafRef.current || 0);
+      }
+
+      function tick() {
+        setObjects((prev) => {
+          const next = prev
+            .map((o) => ({ ...o, y: o.y + o.speed }))
+            .filter((o) => o.y < 110);
+          return next;
+        });
+        if (running) rafRef.current = requestAnimationFrame(tick);
+      }
+
+      function handleCollect(id) {
+        setScore((s) => s + 1);
+        setObjects((prev) => prev.filter((o) => o.id !== id));
+      }
 
       return (
         <section>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               <button onClick={onBack} className="px-3 py-1 rounded bg-gray-800">返回</button>
-              <div className="text-lg font-semibold">作者在看的番</div>
+              <div className="text-lg font-semibold">梗猎手 · 点击收集随机热梗</div>
+            </div>
+            <div className="text-right">
+              <div className="text-sm text-gray-400">分数：{score}</div>
+              <div className="mt-2">
+                {!running ? (
+                  <button onClick={start} className="px-3 py-1 rounded bg-indigo-600">开始</button>
+                ) : (
+                  <button onClick={stop} className="px-3 py-1 rounded bg-red-600">停止</button>
+                )}
+              </div>
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {animes.map((anime) => (
-              <div
-                key={anime.id}
-                className="bg-gray-800 p-4 rounded shadow-sm overflow-hidden cursor-pointer hover:bg-gray-700 transition-colors"
-                onClick={() => handleClick(anime.officialSite)}
-              >
-                <div className="relative w-full h-64 bg-gray-700 rounded overflow-hidden mb-4">
-                  <img
-                    src={anime.image}
-                    alt={anime.title}
-                    className="w-full h-full object-cover"
-                    onError={(e) => {
-                      e.target.src = "https://via.placeholder.com/300x400/374151/9CA3AF?text=Onimai"; // Fallback placeholder
-                    }}
-                  />
-                </div>
-                <div className="text-center">
-                  <h3 className="text-xl font-semibold mb-2">{anime.title}</h3>
-                  <p className="text-sm text-gray-400 mb-4">{anime.description}</p>
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent card click
-                      handleClick(anime.officialSite);
-                    }}
-                    className="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700"
-                  >
-                    进入官网
-                  </button>
-                </div>
-              </div>
+          <div className="relative h-[60vh] bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 rounded overflow-hidden border border-gray-800">
+            {objects.map((o) => (
+              <FloatingMeme key={o.id} obj={o} onCollect={() => handleCollect(o.id)} />
             ))}
+            <div className="absolute top-4 left-4 text-xs text-gray-400">Hit the memes for points — assets from filtered feed</div>
           </div>
-          <div className="mt-4 text-sm text-gray-500">点击卡片或按钮跳转至动画官网。更多番剧可后续添加。Onimai 图片已更新。</div>
+          <div className="mt-4 text-sm text-gray-500">提示：若游戏无图片，请先在“热梗墙”刷新并选标签/时间，这里会使用当前筛选的素材。</div>
         </section>
+      );
+    }
+
+    function FloatingMeme({ obj, onCollect }) {
+      const style = {
+        left: `${obj.x}%`,
+        top: `${obj.y}%`,
+        width: `${obj.size}px`,
+        height: `${obj.size}px`,
+      };
+      return (
+        <div
+          className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded overflow-hidden shadow-lg"
+          style={style}
+          onClick={onCollect}
+          title={obj.title}
+        >
+          <img src={obj.url} alt={obj.title} className="w-full h-full object-cover" />
+        </div>
       );
     }
 
@@ -333,7 +343,7 @@
               const post = c.data;
               const url = post.preview?.images?.[0]?.source?.url?.replace(/&amp;/g, "&") || post.url;
               if (url && (url.endsWith('.jpg') || url.endsWith('.png') || url.includes('i.redd.it') || url.includes('i.imgur.com') || url.startsWith('http'))) {
-                const date = post.created_utc ? new Date(post.created_utc * 1000).toISOString().split('T')[0] : null;
+                const date = post.created_utc ? new Date(post.created_utc * 1000).toDateString() : null;
                 out.push({ id: post.id, title: post.title, url, source: `r/${post.subreddit}`, date });
               }
             }
@@ -351,7 +361,7 @@
               const post = c.data;
               const url = post.preview?.images?.[0]?.source?.url?.replace(/&amp;/g, "&") || post.url;
               if (url) {
-                const date = post.created_utc ? new Date(post.created_utc * 1000).toISOString().split('T')[0] : null;
+                const date = post.created_utc ? new Date(post.created_utc * 1000).toDateString() : null;
                 out.push({ id: post.id, title: post.title, url, source: `r/${post.subreddit}`, date });
               }
             }
@@ -378,25 +388,35 @@
     }
 
     async function tryFetchDomesticImages() {
-      // Domestic sources — Prioritize memes.tw API for actual memes.
-      // Enhanced with date where possible.
+      // Domestic sources — many public domestic endpoints don't return image URLs directly.
+      // We attempt a few aggregator endpoints (may require API key or CORS proxy).
+      // Enhanced with date where possible (e.g., Bilibili pubdate).
       // Fill in YOUR_API_KEY where needed or use a server-side proxy.
+      const ITAPI_KEY = ""; // optional: your itapi key
+      const HUMOR_API_KEY = ""; // placeholder if you have keys for other services
       const sources = [
-        // Memes.tw API - Today's popular memes
+        // Example aggregator: itapi.cn (hot topics) — may return text hotspots (date if available)
         {
-          name: "MemesTW_hot",
-          url: "https://memes.tw/wtf/api",
+          name: "ITAPI_hot",
+          url: ITAPI_KEY ? `https://api.itapi.cn/hot?api_key=${ITAPI_KEY}` : `https://api.itapi.cn/hot`,
           parser: async (d) => {
-            return (d || []).map((p) => ({
-              id: `memestw-${p.id}`,
-              title: p.title || "meme",
-              url: p.src,
-              source: "memes.tw",
-              date: p.created_at ? new Date(p.created_at.timestamp * 1000).toISOString().split('T')[0] : null
-            })).filter(x => x.url && x.url.startsWith('http'));
+            // We try to derive images from returned topics; if none, return an empty array
+            // NOTE: real response shapes differ — this is a best-effort placeholder parser.
+            const items = d?.data || d || [];
+            const out = [];
+            for (let i = 0; i < Math.min(20, items.length); i++) {
+              const t = items[i];
+              // If the topic has an image field
+              const img = t?.pic || t?.image || (t?.thumb && t.thumb[0]);
+              if (img) {
+                const date = t?.date || t?.time || null; // assume string date if present
+                out.push({ id: `itapi-${i}`, title: t.title || t.keyword || "热搜", url: img, source: "itapi", date });
+              }
+            }
+            return out;
           },
         },
-        // B站/哔哩哔哩 视频热榜 — with pubdate (cover images)
+        // B站/哔哩哔哩 视频热榜（using unofficial endpoints sometimes blocked）— with pubdate
         {
           name: "Bilibili_hot_videos",
           url: "https://api.bilibili.com/x/web-interface/ranking?rid=0&day=3&jsonp=jsonp",
@@ -404,12 +424,21 @@
             const list = d?.data?.list || [];
             return list.map((v, i) => {
               const url = v?.pic || `https://i0.hdslb.com/bfs/archive/${v?.bvid || ''}.jpg`;
-              const date = v?.pubdate ? new Date(v.pubdate * 1000).toISOString().split('T')[0] : null;
+              const date = v?.pubdate ? new Date(v.pubdate * 1000).toDateString() : null;
               return { id: v?.aid || `b-${i}`, title: v?.title || "b站", url, source: "bilibili", date };
             }).filter(x => x.url);
           },
         },
-        // Fallback: use picsum (no date)
+        // Weibo 热搜 api（非官方）示例 — often blocked by CORS (no images/date)
+        {
+          name: "Weibo_hot_example",
+          url: "https://weibo.com/ajax/statuses/hot_band",
+          parser: async (d) => {
+            // likely won't have images — skip
+            return [];
+          },
+        },
+        // Fallback: use picsum (国内也可用) and local placeholders (no date)
         {
           name: "picsum_dom_fallback",
           url: "https://picsum.photos/v2/list?page=5&limit=50",
@@ -422,7 +451,6 @@
               date: null
             }));
           },
-          resType: 'json'
         },
         // Custom user-provided JSON endpoint (you can point this to your own proxy that scrapes Chinese platforms)
         {
@@ -452,6 +480,25 @@
         [arr[i], arr[j]] = [arr[j], arr[i]];
       }
       return arr;
+    }
+
+    function generateObjectsFromFeed(feed) {
+      if (!feed || feed.length === 0) return [];
+      const objs = [];
+      const sample = shuffleArray(feed).slice(0, 30);
+      for (let i = 0; i < sample.length; i++) {
+        const s = sample[i];
+        objs.push({
+          id: `o-${s.id}-${i}`,
+          url: s.url,
+          title: s.title,
+          x: Math.random() * 90 + 5,
+          y: Math.random() * 10 + -10,
+          size: 60 + Math.random() * 120,
+          speed: 0.2 + Math.random() * 1.2,
+        });
+      }
+      return objs;
     }
 
     // Render the app
