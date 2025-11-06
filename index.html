@@ -16,10 +16,11 @@
   <div id="root"></div>
   <script type="text/babel">
     // MemeWave — single-file React front-end (standalone HTML version)
-    // Dark theme, 2 pages: Feed / Game
+    // Dark theme, 1 page: Feed + Anime
     // Integrates multiple overseas + domestic sources with automatic fallback & retry logic.
     // Added: Time filter (All, Today, Week, Month) — client-side based on meme dates where available.
     // Added: Click on feed images to view full size in modal.
+    // Added: 作者在看的番 page.
     // NOTE: This is still a front-end-only demo. CORS and API keys may be required for some sources.
     // Usage: Open index.html in browser (use dev proxy for CORS if needed).
 
@@ -84,8 +85,8 @@
               <button onClick={() => setRoute("feed")} className={`px-3 py-1 rounded-md ${route === "feed" ? "bg-gray-800" : "bg-transparent"}`}>
                 热梗墙
               </button>
-              <button onClick={() => setRoute("game")} className={`px-3 py-1 rounded-md ${route === "game" ? "bg-gray-800" : "bg-transparent"}`}>
-                小游戏
+              <button onClick={() => setRoute("anime")} className={`px-3 py-1 rounded-md ${route === "anime" ? "bg-gray-800" : "bg-transparent"}`}>
+                作者在看的番
               </button>
               <button onClick={loadFeeds} className="px-3 py-1 rounded-md bg-gray-800 ml-2">刷新梗</button>
             </nav>
@@ -104,7 +105,7 @@
                 setSelectedMeme={setSelectedMeme}
               />
             ) : (
-              <GamePage feedImages={filteredFeed} onBack={() => setRoute("feed")} />
+              <AnimePage onBack={() => setRoute("feed")} />
             )}
             {selectedMeme && (
               <ImageModal meme={selectedMeme} onClose={() => setSelectedMeme(null)} />
@@ -213,88 +214,81 @@
       );
     }
 
-    function GamePage({ feedImages, onBack }) {
-      const [running, setRunning] = useState(false);
-      const [score, setScore] = useState(0);
-      const [objects, setObjects] = useState([]);
-      const rafRef = useRef(null);
-
-      useEffect(() => {
-        return () => cancelAnimationFrame(rafRef.current || 0);
-      }, []);
-
-      function start() {
-        setScore(0);
-        setObjects(generateObjectsFromFeed(feedImages || []));
-        setRunning(true);
-        rafRef.current = requestAnimationFrame(tick);
-      }
-
-      function stop() {
-        setRunning(false);
-        cancelAnimationFrame(rafRef.current || 0);
-      }
-
-      function tick() {
-        setObjects((prev) => {
-          const next = prev
-            .map((o) => ({ ...o, y: o.y + o.speed }))
-            .filter((o) => o.y < 110);
-          return next;
-        });
-        if (running) rafRef.current = requestAnimationFrame(tick);
-      }
-
-      function handleCollect(id) {
-        setScore((s) => s + 1);
-        setObjects((prev) => prev.filter((o) => o.id !== id));
-      }
+    function AnimePage({ onBack }) {
+      const animeList = [
+        {
+          id: 1,
+          title: "One Piece",
+          poster: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx118546-5W2hEc5Dyv6X.jpg",
+          description: "Gol D. Roger was known as the 'Pirate King,' the strongest and most infamous being who had sailed the Grand Line. The capture and execution of Roger by the World Government brought a change throughout the world.",
+          episodes: "Ongoing",
+          status: "Watching"
+        },
+        {
+          id: 2,
+          title: "Attack on Titan",
+          poster: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx134258-9x0kV2nI5b0p.jpg",
+          description: "After his hometown is destroyed and his mother is killed, young Eren Yeager vows to cleanse the earth of the giant humanoid Titans that have brought humanity to the brink of extinction.",
+          episodes: "Final Season",
+          status: "Watching"
+        },
+        {
+          id: 3,
+          title: "Jujutsu Kaisen",
+          poster: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx136461-YU4M6XzW5q2Q.jpg",
+          description: "Yuji Itadori is a boy with tremendous physical strength, though he lives a completely ordinary high school life. One day, to save a classmate who has been attacked by curses, he eats the finger of Sukuna, taking the curse into his own soul.",
+          episodes: "Season 2",
+          status: "Watching"
+        },
+        {
+          id: 4,
+          title: "Demon Slayer",
+          poster: "https://s4.anilist.co/file/anilistcdn/media/anime/cover/large/bx117344-5sH2dM4a7g0y.jpg",
+          description: "It is the Taisho Period in Japan. Tanjiro, a kindhearted boy who sells charcoal for a living, finds his family slaughtered by a demon. To make matters worse, his younger sister Nezuko, the sole survivor, shows signs of demon transformation.",
+          episodes: "Swordsmith Village Arc",
+          status: "Watching"
+        }
+      ];
 
       return (
         <section>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               <button onClick={onBack} className="px-3 py-1 rounded bg-gray-800">返回</button>
-              <div className="text-lg font-semibold">梗猎手 · 点击收集随机热梗</div>
-            </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-400">分数：{score}</div>
-              <div className="mt-2">
-                {!running ? (
-                  <button onClick={start} className="px-3 py-1 rounded bg-indigo-600">开始</button>
-                ) : (
-                  <button onClick={stop} className="px-3 py-1 rounded bg-red-600">停止</button>
-                )}
-              </div>
+              <div className="text-lg font-semibold">作者在看的番</div>
             </div>
           </div>
-          <div className="relative h-[60vh] bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 rounded overflow-hidden border border-gray-800">
-            {objects.map((o) => (
-              <FloatingMeme key={o.id} obj={o} onCollect={() => handleCollect(o.id)} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {animeList.map((anime) => (
+              <AnimeCard key={anime.id} anime={anime} />
             ))}
-            <div className="absolute top-4 left-4 text-xs text-gray-400">Hit the memes for points — assets from filtered feed</div>
           </div>
-          <div className="mt-4 text-sm text-gray-500">提示：若游戏无图片，请先在“热梗墙”刷新并选标签/时间，这里会使用当前筛选的素材。</div>
+          <div className="mt-4 text-sm text-gray-500">Giu Giu 的追番列表 — 基于 MyAnimeList 数据，纯静态展示。</div>
         </section>
       );
     }
 
-    function FloatingMeme({ obj, onCollect }) {
-      const style = {
-        left: `${obj.x}%`,
-        top: `${obj.y}%`,
-        width: `${obj.size}px`,
-        height: `${obj.size}px`,
-      };
+    function AnimeCard({ anime }) {
+      const [show, setShow] = useState(false);
       return (
-        <div
-          className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer rounded overflow-hidden shadow-lg"
-          style={style}
-          onClick={onCollect}
-          title={obj.title}
-        >
-          <img src={obj.url} alt={obj.title} className="w-full h-full object-cover" />
-        </div>
+        <article className="bg-gray-800 p-2 rounded shadow-sm overflow-hidden hover:scale-[1.01] transition-transform">
+          <div className="relative w-full h-48 bg-gray-700 rounded overflow-hidden">
+            <img
+              src={anime.poster}
+              alt={anime.title}
+              className="w-full h-full object-cover"
+              onLoad={() => setShow(true)}
+              onError={() => setShow(true)}
+            />
+            {!show && <div className="absolute inset-0 flex items-center justify-center">加载中...</div>}
+          </div>
+          <div className="mt-2">
+            <div className="text-sm font-semibold truncate">{anime.title}</div>
+            <div className="text-xs text-gray-400">{anime.status}</div>
+            <div className="text-xs text-gray-500 mt-1 line-clamp-2">{anime.description}</div>
+            <div className="text-xs text-indigo-400 mt-1">{anime.episodes}</div>
+          </div>
+        </article>
       );
     }
 
@@ -515,25 +509,6 @@
         [arr[i], arr[j]] = [arr[j], arr[i]];
       }
       return arr;
-    }
-
-    function generateObjectsFromFeed(feed) {
-      if (!feed || feed.length === 0) return [];
-      const objs = [];
-      const sample = shuffleArray(feed).slice(0, 30);
-      for (let i = 0; i < sample.length; i++) {
-        const s = sample[i];
-        objs.push({
-          id: `o-${s.id}-${i}`,
-          url: s.url,
-          title: s.title,
-          x: Math.random() * 90 + 5,
-          y: Math.random() * 10 + -10,
-          size: 60 + Math.random() * 120,
-          speed: 0.2 + Math.random() * 1.2,
-        });
-      }
-      return objs;
     }
 
     // Render the app
