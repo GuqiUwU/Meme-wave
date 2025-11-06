@@ -10,41 +10,247 @@
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* Custom styles if needed beyond Tailwind */
+    /* Simple, smooth animations for all interactions */
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 5px rgba(99, 102, 241, 0.5); }
+      50% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.8); }
+    }
+    @keyframes subtleRipple {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+    @keyframes tabSlide {
+      from { transform: translateX(0); }
+      to { transform: translateX(100%); }
+    }
+    @keyframes tabSlideBack {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+    .ripple-effect {
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .ripple-effect:hover {
+      transform: translateY(-1px);
+    }
+    .ripple-effect::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.3) 0%, transparent 70%);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      animation: ripple 0.6s ease-out;
+      transition: all 0.2s ease;
+    }
+    @keyframes ripple {
+      0% {
+        transform: scale(0);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(4);
+        opacity: 0;
+      }
+    }
+    .tab-container {
+      position: relative;
+      display: flex;
+      gap: 0;
+      overflow: hidden;
+      border-radius: 9999px;
+      background: rgba(55, 65, 81, 0.6);
+      padding: 4px;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s ease;
+    }
+    .tab-button {
+      position: relative;
+      z-index: 2;
+      background: transparent;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 9999px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      font-weight: 500;
+      flex: 1; /* Equal width for both buttons */
+      text-align: center;
+    }
+    .tab-button:hover {
+      background: rgba(99, 102, 241, 0.2);
+      transform: translateY(-1px);
+      animation: subtleRipple 0.6s ease-in-out;
+    }
+    .tab-button.active {
+      color: white;
+      background: rgba(99, 102, 241, 0.4);
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    }
+    .tab-button:not(.active) {
+      color: rgba(156, 163, 175, 0.8);
+    }
+    /* Smooth tab indicator slide */
+    .tab-indicator {
+      position: absolute;
+      bottom: 4px;
+      left: 4px;
+      height: calc(100% - 8px);
+      background: linear-gradient(135deg, #3b82f6, #22c55e);
+      border-radius: 9999px;
+      transition: left 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      z-index: 1;
+      width: calc(50% - 2px);
+    }
+    .card-enter {
+      animation: fadeInUp 0.5s ease-out forwards;
+    }
+    .loading-pulse {
+      animation: pulseGlow 2s infinite;
+    }
+    .modal-fade {
+      animation: slideIn 0.3s ease-out;
+    }
+    /* Smooth grid item stagger */
+    .grid-item {
+      opacity: 0;
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+    .grid-item:nth-child(1) { animation-delay: 0.1s; }
+    .grid-item:nth-child(2) { animation-delay: 0.15s; }
+    .grid-item:nth-child(3) { animation-delay: 0.2s; }
+    .grid-item:nth-child(4) { animation-delay: 0.25s; }
+    /* Hover scale for all cards */
+    .meme-card, .anime-card, .video-card {
+      transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    .meme-card:hover, .anime-card:hover, .video-card:hover {
+      transform: scale(1.02) translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+    }
+    /* Button universal hover */
+    button {
+      transition: all 0.2s ease;
+    }
+    button:hover {
+      transform: translateY(-1px);
+    }
+    select {
+      transition: all 0.2s ease;
+    }
+    select:hover {
+      transform: scale(1.02);
+    }
+    /* Password modal */
+    .password-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+    .password-input {
+      padding: 12px;
+      font-size: 18px;
+      border: none;
+      border-radius: 8px;
+      background: #374151;
+      color: white;
+      text-align: center;
+      width: 200px;
+    }
+    /* Admin background - directly replace dark blue with image */
+    .admin-bg {
+      background-image: url('https://i.kym-cdn.com/editorials/icons/original/000/005/643/boykisser.jpeg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+    }
+    /* Lighten the background with overlay */
+    .admin-bg::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      pointer-events: none;
+      z-index: -1;
+    }
+    .video-player {
+      position: relative;
+      padding-bottom: 56.25%; /* 16:9 aspect ratio */
+      height: 0;
+      overflow: hidden;
+    }
+    .video-player iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      border-radius: 8px;
+    }
+    /* Progress bar for video loading */
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background-color: rgba(156, 163, 175, 0.3);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #22c55e);
+      width: 0%;
+      transition: width 0.3s ease;
+      animation: progress-anim 2s infinite ease-in-out;
+    }
+    @keyframes progress-anim {
+      0% { width: 0%; }
+      50% { width: 70%; }
+      100% { width: 100%; }
+    }
   </style>
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans min-h-screen">
   <div id="root"></div>
   <script type="text/babel">
-    // MemeWave — single-file React front-end (standalone HTML version)
-    // Dark theme, 1 page: Feed + Anime
-    // Integrates multiple overseas + domestic sources with automatic fallback & retry logic.
-    // Added: Time filter (All, Today, Week, Month) — client-side based on meme dates where available.
-    // Added: Click on feed images to view full size in modal.
-    // Added: 作者在看的番 page.
-    // Added: Infinite scroll — load more when scroll to bottom.
-    // Added: Background caching — preload inactive tab in background every 10s if <200 items.
-    // Added: Language switcher (ZH/EN) in header.
-    // Added: Credits page with production staff list.
-    // Added: Boy Kisser button in header — image-only, clicks to modal with full Boy Kisser emoji image.
-    // Updated: Domestic sources now include Bilibili as fallback (memes.tw is JS-heavy, may not load images via fetch).
-    // Updated: Improved title extraction for Bilibili - use desc/title or user name + "的图片" as fallback for better titles.
-    // Updated: For memes.tw, fallback title to "台湾热梗 X" if no text found (though static parse may yield few results).
-    // Updated: Added "(Unstable)" label to Domestic tab button (lang-aware: "(不稳定)" for ZH).
-    // NOTE: This is still a front-end-only demo. CORS and API keys may be required for some sources.
-    // Usage: Open index.html in browser (use dev proxy for CORS if needed).
     const { useEffect, useState, useRef, useMemo, useCallback } = React;
     function MemeWaveApp() {
       const [route, setRoute] = useState("feed");
-      const [lang, setLang] = useState("zh"); // 'zh' or 'en'
+      const [lang, setLang] = useState("zh");
       const [foreignFeed, setForeignFeed] = useState([]);
       const [domesticFeed, setDomesticFeed] = useState([]);
+      const [videos, setVideos] = useState([]);
+      const [videosLoading, setVideosLoading] = useState(false);
       const [loading, setLoading] = useState(false);
       const [activeTab, setActiveTab] = useState("foreign");
       const [timeFilter, setTimeFilter] = useState("all");
       const [error, setError] = useState(null);
       const [selectedMeme, setSelectedMeme] = useState(null);
       const [showBoyKisser, setShowBoyKisser] = useState(false);
+      const [showAdminPassword, setShowAdminPassword] = useState(false);
+      const [passwordInput, setPasswordInput] = useState("");
       const [hasMoreForeign, setHasMoreForeign] = useState(false);
       const [hasMoreDomestic, setHasMoreDomestic] = useState(false);
       const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -61,10 +267,53 @@
           if (inactiveFeed.length < 200 && inactiveHasMore && !isLoadingMore) {
             loadMoreFeed(inactiveTab);
           }
-        }, 10000); // Preload inactive every 10s
+        }, 10000);
         setBackgroundInterval(interval);
         return () => clearInterval(interval);
       }, [activeTab, foreignFeed.length, domesticFeed.length, hasMoreForeign, hasMoreDomestic, isLoadingMore, loadMoreFeed]);
+      // useEffect for admin background - directly applied to body
+      useEffect(() => {
+        if (route === "admin") {
+          document.body.classList.add('admin-bg');
+        } else {
+          document.body.classList.remove('admin-bg');
+        }
+        return () => {
+          document.body.classList.remove('admin-bg');
+        };
+      }, [route]);
+      const handleTabClick = useCallback((tab) => {
+        if (activeTab === tab) return;
+        setActiveTab(tab);
+      }, [activeTab]);
+      const handleAdminClick = () => {
+        setShowAdminPassword(true);
+      };
+      const handlePasswordSubmit = (e) => {
+        e.preventDefault();
+        if (passwordInput === "FURRYXD") {
+          loadVideos();
+          setRoute("admin");
+          setShowAdminPassword(false);
+          setPasswordInput("");
+        } else {
+          alert("Wrong password!");
+          setPasswordInput("");
+        }
+      };
+      // Function to load videos including YouTube
+      async function loadVideos() {
+        setVideosLoading(true);
+        try {
+          const vidData = await tryFetchVideos();
+          setVideos(shuffleArray(vidData).slice(0, 20));
+        } catch (e) {
+          console.error(e);
+          setError(lang === 'en' ? "Failed to load videos." : "加载视频失败。");
+        } finally {
+          setVideosLoading(false);
+        }
+      }
       async function loadFeeds() {
         setLoading(true);
         setError(null);
@@ -137,6 +386,7 @@
             hotMemes: "热梗墙",
             animeWatching: "作者在看的番",
             credits: "制作名单",
+            admin: "Admin",
             boyKisser: "Boy Kisser",
             refresh: "刷新梗",
             overseas: "海外",
@@ -154,17 +404,20 @@
             multiSource: "多来源合并 · 纯前端",
             back: "返回",
             animeTitle: "作者在看的番",
-            footer: "前端演示 — 已接入多个来源（见代码注释）。若无法显示图片，通常是 CORS 或需 API Key。可在本地用 dev proxy 解决。新增时间筛选（基于可用日期字段）及图片点击查看大图。新增无限滚动加载及后台缓存预加载。国内来源：memes.tw (静态抓取有限) + Bilibili 动态图片（优化标题提取）。",
+            videosTitle: "内置视频墙 (Bilibili Top + Douyin + YouTube)",
+            footer: "前端演示 — 已接入多个来源（见代码注释）。若无法显示图片，通常是 CORS 或需 API Key。可在本地用 dev proxy 解决。新增时间筛选（基于可用日期字段）及图片点击查看大图。新增无限滚动加载及后台缓存预加载。国内来源：memes.tw (静态抓取有限) + Bilibili 动态图片（优化标题提取）。全交互平滑动画：标签滑动指示器、按钮微动、卡片渐现/悬停、模态淡入。新增 Admin 面板：密码 FURRYXD 进入视频墙（Bilibili Top & Douyin & YouTube embeds）。",
             animeDesc: "当宅男哥哥不小心用可疑药物把自己的哥哥变成了女孩子后，展开的爆笑日常故事。",
             episodes: "Season 1",
             status: "Watching",
             animeListNote: "Giu Giu 的追番列表 — 基于 MyAnimeList 数据，纯静态展示。",
+            loadingVideos: "加载视频中...",
           },
           en: {
             title: "MemeWave",
             hotMemes: "Hot Memes",
             animeWatching: "Anime I'm Watching",
             credits: "Credits",
+            admin: "Admin",
             boyKisser: "Boy Kisser",
             refresh: "Refresh Memes",
             overseas: "Overseas",
@@ -182,11 +435,13 @@
             multiSource: "Multi-source · Pure Frontend",
             back: "Back",
             animeTitle: "Anime I'm Watching",
-            footer: "Frontend demo — Integrated multiple sources (see code comments). If images fail to load, it's usually CORS or API Key needed. Solve with local dev proxy. Added time filtering (based on available date fields) and image click to view full size. Added infinite scroll and background caching preload. Domestic: memes.tw (limited static scrape) + Bilibili dynamic images (improved title extraction).",
+            videosTitle: "Built-in Video Wall (Bilibili Top + Douyin + YouTube)",
+            footer: "Frontend demo — Integrated multiple sources (see code comments). If images fail to load, it's usually CORS or API Key needed. Solve with local dev proxy. Added time filtering (based on available date fields) and image click to view full size. Added infinite scroll and background caching preload. Domestic: memes.tw (limited static scrape) + Bilibili dynamic images (improved title extraction). All interactions with smooth animations: tab sliding indicator, button micro-motions, card fade-in/hover, modal fade-in. Added Admin panel: Password FURRYXD to enter video wall (Bilibili Top & Douyin & YouTube embeds).",
             animeDesc: "After a shut-in brother accidentally turns his brother into a girl with suspicious drugs, an explosive daily life story unfolds.",
             episodes: "Season 1",
             status: "Watching",
             animeListNote: "Giu Giu's anime watchlist — Based on MyAnimeList data, static display.",
+            loadingVideos: "Loading videos...",
           }
         };
         return translations[lang][key] || key;
@@ -199,34 +454,54 @@
       };
       return (
         <div className="min-h-screen bg-gray-900 text-gray-100 font-sans">
-          <header className="p-4 flex items-center justify-between border-b border-gray-800">
-            <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
+          <header className="p-4 flex items-center justify-between border-b border-gray-800 transition-all duration-300">
+            <h1 className="text-2xl font-bold tracking-tight ripple-effect">{t('title')}</h1>
             <nav className="flex items-center gap-2">
-              <button onClick={() => setRoute("feed")} className={`px-3 py-1 rounded-md ${route === "feed" ? "bg-gray-800" : "bg-transparent"}`}>
+              <button
+                onClick={() => setRoute("feed")}
+                className={`px-3 py-1 rounded-md ripple-effect ${route === "feed" ? "bg-gray-800" : "bg-transparent"}`}
+              >
                 {t('hotMemes')}
               </button>
-              <button onClick={() => setRoute("anime")} className={`px-3 py-1 rounded-md ${route === "anime" ? "bg-gray-800" : "bg-transparent"}`}>
+              <button
+                onClick={() => setRoute("anime")}
+                className={`px-3 py-1 rounded-md ripple-effect ${route === "anime" ? "bg-gray-800" : "bg-transparent"}`}
+              >
                 {t('animeWatching')}
               </button>
-              <button onClick={() => setRoute("credits")} className={`px-3 py-1 rounded-md ${route === "credits" ? "bg-gray-800" : "bg-transparent"}`}>
+              <button
+                onClick={() => setRoute("credits")}
+                className={`px-3 py-1 rounded-md ripple-effect ${route === "credits" ? "bg-gray-800" : "bg-transparent"}`}
+              >
                 {t('credits')}
               </button>
-              <button onClick={loadFeeds} className="px-3 py-1 rounded-md bg-gray-800 ml-2">{t('refresh')}</button>
+              <button
+                onClick={handleAdminClick}
+                className={`px-3 py-1 rounded-md ripple-effect ${route === "admin" ? "bg-gray-800" : "bg-transparent"}`}
+              >
+                {t('admin')}
+              </button>
+              <button
+                onClick={loadFeeds}
+                className="px-3 py-1 rounded-md bg-gray-800 ml-2 ripple-effect loading-pulse"
+              >
+                {t('refresh')}
+              </button>
               <button
                 onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')}
-                className="px-3 py-1 rounded-md bg-indigo-600 ml-2 text-sm"
+                className="px-3 py-1 rounded-md bg-indigo-600 ml-2 text-sm ripple-effect"
               >
                 {lang === 'zh' ? 'EN' : 'ZH'}
               </button>
               <button
                 onClick={() => setShowBoyKisser(true)}
-                className="p-1 rounded hover:bg-gray-800 transition-colors ml-2"
+                className="p-1 rounded hover:bg-gray-800 transition-colors ml-2 ripple-effect"
                 title={t('boyKisser')}
               >
                 <img
                   src="https://tse4.mm.bing.net/th/id/OIP.piRzWtMCSbpX-WL21vFMSgAAAA?rs=1&pid=ImgDetMain&o=7&rm=3"
                   alt={t('boyKisser')}
-                  className="w-8 h-8 rounded"
+                  className="w-8 h-8 rounded transition-transform duration-200 hover:scale-110"
                 />
               </button>
             </nav>
@@ -238,7 +513,7 @@
                 error={error}
                 filteredFeed={filteredFeed}
                 activeTab={activeTab}
-                setActiveTab={setActiveTab}
+                setActiveTab={handleTabClick}
                 timeFilter={timeFilter}
                 setTimeFilter={setTimeFilter}
                 selectedMeme={selectedMeme}
@@ -250,6 +525,8 @@
               />
             ) : route === "credits" ? (
               <CreditsPage onBack={() => setRoute("feed")} t={t} />
+            ) : route === "admin" ? (
+              <AdminPage videos={videos} videosLoading={videosLoading} selectedMeme={selectedMeme} setSelectedMeme={setSelectedMeme} t={t} onBack={() => setRoute("feed")} />
             ) : (
               <AnimePage onBack={() => setRoute("feed")} t={t} />
             )}
@@ -258,6 +535,23 @@
             )}
             {showBoyKisser && (
               <ImageModal meme={boyKisserMeme} onClose={() => setShowBoyKisser(false)} t={t} />
+            )}
+            {showAdminPassword && (
+              <div className="password-modal modal-fade">
+                <form onSubmit={handlePasswordSubmit} className="bg-gray-800 p-6 rounded shadow-lg flex flex-col items-center gap-4">
+                  <h2 className="text-xl font-bold">Admin Password</h2>
+                  <input
+                    type="password"
+                    value={passwordInput}
+                    onChange={(e) => setPasswordInput(e.target.value)}
+                    className="password-input"
+                    placeholder="Enter password..."
+                    autoFocus
+                  />
+                  <button type="submit" className="px-4 py-2 bg-indigo-600 rounded hover:bg-indigo-700 transition-colors">Enter</button>
+                  <button type="button" onClick={() => setShowAdminPassword(false)} className="px-4 py-2 bg-gray-600 rounded hover:bg-gray-700 transition-colors">Cancel</button>
+                </form>
+              </div>
             )}
             <footer className="mt-8 text-sm text-gray-500">{t('footer')}</footer>
           </main>
@@ -269,11 +563,11 @@
         <section>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <button onClick={onBack} className="px-3 py-1 rounded bg-gray-800">{t('back')}</button>
+              <button onClick={onBack} className="px-3 py-1 rounded bg-gray-800 ripple-effect">{t('back')}</button>
               <div className="text-lg font-semibold">{t('credits')}</div>
             </div>
           </div>
-          <div className="bg-gray-800 p-6 rounded shadow-sm">
+          <div className="bg-gray-800 p-6 rounded shadow-sm transition-all duration-300 hover:shadow-lg">
             <h2 className="text-xl font-bold mb-4">Production Staff</h2>
             <ul className="space-y-2 text-sm">
               <li><strong>Author:</strong> Giu Giu</li>
@@ -304,15 +598,21 @@
           }
         };
       }, [hasMore, isLoadingMore, activeTab, loadMore]);
+      const indicatorLeft = activeTab === "foreign" ? "4px" : "calc(50% + 2px)";
       return (
         <section>
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
-            <div className="flex gap-2">
-              <Tab label={t('overseas')} active={activeTab === "foreign"} onClick={() => setActiveTab("foreign")} />
-              <Tab 
-                label={`${t('domestic')} ${t('unstable')}`} 
-                active={activeTab === "domestic"} 
-                onClick={() => setActiveTab("domestic")} 
+            <div className="tab-container">
+              <div className="tab-indicator" style={{ left: indicatorLeft }}></div>
+              <TabButton
+                label={t('overseas')}
+                active={activeTab === "foreign"}
+                onClick={() => setActiveTab("foreign")}
+              />
+              <TabButton
+                label={`${t('domestic')} ${t('unstable')}`}
+                active={activeTab === "domestic"}
+                onClick={() => setActiveTab("domestic")}
               />
             </div>
             <div className="flex items-center gap-2">
@@ -330,16 +630,16 @@
             </div>
             <div className="text-sm text-gray-400">{t('multiSource')}</div>
           </div>
-          {loading && <div className="py-12 text-center">{t('loading')}</div>}
-          {error && <div className="py-4 text-red-400">{error}</div>}
+          {loading && <div className="py-12 text-center loading-pulse">{t('loading')}</div>}
+          {error && <div className="py-4 text-red-400 animate-pulse">{error}</div>}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {filteredFeed.map((m) => (
-              <MemeCard key={m.id} meme={m} onClick={() => setSelectedMeme(m)} />
+            {filteredFeed.map((m, index) => (
+              <MemeCard key={m.id} meme={m} onClick={() => setSelectedMeme(m)} className={`grid-item meme-card`} style={{ animationDelay: `${(index % 4) * 0.1}s` }} />
             ))}
           </div>
           {hasMore && (
             <div ref={sentinelRef} className="h-20 flex justify-center items-center">
-              {isLoadingMore ? <div className="text-gray-400">{t('loadingMore')}</div> : <div className="text-gray-500">{t('end')}</div>}
+              {isLoadingMore ? <div className="text-gray-400 loading-pulse">{t('loadingMore')}</div> : <div className="text-gray-500">{t('end')}</div>}
             </div>
           )}
           {filteredFeed.length === 0 && !loading && (
@@ -348,27 +648,61 @@
         </section>
       );
     }
-    function Tab({ label, active, onClick }) {
+    function TabButton({ label, active, onClick }) {
       return (
-        <button onClick={onClick} className={`px-3 py-1 rounded ${active ? "bg-indigo-600 text-white" : "bg-gray-800"}`}>
+        <button
+          onClick={onClick}
+          className={`tab-button ${active ? "active" : ""}`}
+        >
           {label}
         </button>
       );
     }
-    function MemeCard({ meme, onClick }) {
+    function AdminPage({ videos, videosLoading, selectedMeme, setSelectedMeme, t, onBack }) {
+      return (
+        <section className="relative z-10"> {/* Ensure content is above background */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <button onClick={onBack} className="px-3 py-1 rounded bg-gray-800 ripple-effect">{t('back')}</button>
+              <div className="text-lg font-semibold">Admin Panel</div>
+            </div>
+          </div>
+          {/* Videos Section */}
+          <div>
+            <h2 className="text-xl font-bold mb-4">{t('videosTitle')}</h2>
+            {videosLoading && (
+              <div className="py-12 text-center">
+                <p className="text-gray-400 mb-4">{t('loadingVideos')}</p>
+                <div className="progress-bar mx-auto max-w-md">
+                  <div className="progress-fill"></div>
+                </div>
+              </div>
+            )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {videos.map((v, index) => (
+                <VideoCard key={v.id} video={v} className={`grid-item video-card`} style={{ animationDelay: `${(index % 4) * 0.1}s` }} />
+              ))}
+            </div>
+            {videos.length === 0 && !videosLoading && <div className="py-12 text-center text-gray-400">Loading videos... (Note: Douyin may require additional proxy/API for full integration)</div>}
+          </div>
+        </section>
+      );
+    }
+    function MemeCard({ meme, onClick, className }) {
       const [show, setShow] = useState(false);
       return (
         <article
-          className="bg-gray-800 p-2 rounded shadow-sm overflow-hidden hover:scale-[1.01] transition-transform cursor-pointer"
+          className={`bg-gray-800 p-2 rounded shadow-sm overflow-hidden cursor-pointer ripple-effect ${className || ""}`}
           onClick={onClick}
         >
-          <div className="relative w-full h-48 bg-gray-700 rounded overflow-hidden">
+          <div className="relative w-full h-48 bg-gray-700 rounded overflow-hidden transition-all duration-300">
             <img
               src={meme.url}
               alt={meme.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-opacity duration-300"
               onLoad={() => setShow(true)}
               onError={() => setShow(true)}
+              style={{ opacity: show ? 1 : 0 }}
             />
             {!show && <div className="absolute inset-0 flex items-center justify-center">Loading...</div>}
           </div>
@@ -382,20 +716,57 @@
         </article>
       );
     }
+    // VideoCard component - handles YouTube embeds too
+    function VideoCard({ video, className }) {
+      const [show, setShow] = useState(false);
+      const handleClick = () => {
+        if (video.embedUrl) {
+          window.open(video.embedUrl, '_blank');
+        }
+      };
+      return (
+        <article onClick={handleClick} className={`bg-gray-800 p-2 rounded shadow-sm overflow-hidden cursor-pointer ripple-effect ${className || ""}`}>
+          <div className="relative w-full h-48 bg-gray-700 rounded overflow-hidden transition-all duration-300 video-player">
+            <img
+              src={video.thumbnail}
+              alt={video.title}
+              className="w-full h-full object-cover transition-opacity duration-300 absolute top-0 left-0"
+              onLoad={() => setShow(true)}
+              onError={() => setShow(true)}
+              style={{ opacity: show ? 1 : 0 }}
+            />
+            {!show && <div className="absolute inset-0 flex items-center justify-center">Loading...</div>}
+            {video.embedUrl && (
+              <iframe
+                src={video.embedUrl}
+                title={video.title}
+                allowFullScreen
+                className="hidden" // Hidden, shown on hover or click if needed
+              />
+            )}
+          </div>
+          <div className="mt-2">
+            <div className="text-sm font-semibold truncate">{video.title}</div>
+            <div className="text-xs text-gray-400">{video.source}</div>
+            {video.date && <div className="text-xs text-gray-500 mt-1">{video.date}</div>}
+          </div>
+        </article>
+      );
+    }
     function ImageModal({ meme, onClose, t }) {
       return (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-          <div className="relative max-w-4xl max-h-full p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 modal-fade">
+          <div className="relative max-w-4xl max-h-full p-4 animate-scale-in">
             <button
               onClick={onClose}
-              className="absolute top-2 right-2 text-white text-4xl font-bold z-10 px-2 py-1 rounded hover:bg-gray-800 transition-colors"
+              className="absolute top-2 right-2 text-white text-4xl font-bold z-10 px-2 py-1 rounded hover:bg-gray-800 transition-colors ripple-effect"
             >
               ×
             </button>
             <img
               src={meme.url}
               alt={meme.title}
-              className="max-w-full max-h-[90vh] object-contain rounded shadow-lg"
+              className="max-w-full max-h-[90vh] object-contain rounded shadow-lg transition-transform duration-300 hover:scale-105"
             />
             <div className="mt-4 text-center text-white">
               <h3 className="text-lg font-semibold">{meme.title}</h3>
@@ -422,33 +793,34 @@
         <section>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <button onClick={onBack} className="px-3 py-1 rounded bg-gray-800">{t('back')}</button>
+              <button onClick={onBack} className="px-3 py-1 rounded bg-gray-800 ripple-effect">{t('back')}</button>
               <div className="text-lg font-semibold">{t('animeTitle')}</div>
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {animeList.map((anime) => (
-              <AnimeCard key={anime.id} anime={anime} />
+            {animeList.map((anime, index) => (
+              <AnimeCard key={anime.id} anime={anime} className={`grid-item anime-card`} style={{ animationDelay: `${index * 0.1}s` }} />
             ))}
           </div>
           <div className="mt-4 text-sm text-gray-500">{t('animeListNote')}</div>
         </section>
       );
     }
-    function AnimeCard({ anime }) {
+    function AnimeCard({ anime, className }) {
       const [show, setShow] = useState(false);
       const handleClick = () => {
         window.location.href = anime.url;
       };
       return (
-        <article onClick={handleClick} className="bg-gray-800 p-2 rounded shadow-sm overflow-hidden hover:scale-[1.01] transition-transform cursor-pointer">
-          <div className="relative w-full h-48 bg-gray-700 rounded overflow-hidden">
+        <article onClick={handleClick} className={`bg-gray-800 p-2 rounded shadow-sm overflow-hidden cursor-pointer ripple-effect ${className || ""}`}>
+          <div className="relative w-full h-48 bg-gray-700 rounded overflow-hidden transition-all duration-300">
             <img
               src={anime.poster}
               alt={anime.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-opacity duration-300"
               onLoad={() => setShow(true)}
               onError={() => setShow(true)}
+              style={{ opacity: show ? 1 : 0 }}
             />
             {!show && <div className="absolute inset-0 flex items-center justify-center">Loading...</div>}
           </div>
@@ -478,10 +850,14 @@
       let allImgs = [];
       for (const s of sources) {
         try {
-          const res = await fetchWithTimeout(s.url, { method: s.method || "GET", headers: s.headers || {} }, s.timeout || 9000);
-          if (!res.ok) throw new Error(`${s.name} status ${res.status}`);
-          const data = await res[s.resType || "json"]();
-          const imgs = await s.parser(data);
+          let data;
+          if (s.url) {
+            const res = await fetchWithTimeout(s.url, { method: s.method || "GET", headers: s.headers || {} }, s.timeout || 9000);
+            if (!res.ok) throw new Error(`${s.name} status ${res.status}`);
+            data = await res[s.resType || "json"]();
+          } // else: 无 url，直接跳过 fetch
+          // 根据是否有 url 调用 parser（有 data 传 data，无则传 undefined）
+          const imgs = s.url ? await s.parser(data) : await s.parser();
           if (Array.isArray(imgs) && imgs.length > 0) {
             allImgs = allImgs.concat(imgs);
             console.info(`source ${s.name} added ${imgs.length}`);
@@ -491,6 +867,174 @@
         }
       }
       return allImgs;
+    }
+    // Fetch videos from Bilibili, Douyin, and YouTube
+    async function tryFetchVideos() {
+      const sources = [
+        {
+          name: "YouTube_Popular",
+          // 无 url，直接用 parser 返回 sample 视频（20 个热门，thumbnails 和 embed 都能直接用）
+          parser: async () => {
+            const sampleVideos = [
+              {
+                id: "dQw4w9WgXcQ",
+                title: "Rick Astley - Never Gonna Give You Up",
+                thumbnail: "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/dQw4w9WgXcQ"
+              },
+              {
+                id: "kJQP7kiw5Fk",
+                title: "PSY - GANGNAM STYLE",
+                thumbnail: "https://i.ytimg.com/vi/kJQP7kiw5Fk/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/kJQP7kiw5Fk"
+              },
+              {
+                id: "9bZkp7q19f0",
+                title: "Despacito - Luis Fonsi ft. Daddy Yankee",
+                thumbnail: "https://i.ytimg.com/vi/9bZkp7q19f0/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/9bZkp7q19f0"
+              },
+              {
+                id: "8S5wyQfH0CY",
+                title: "Johny Johny Yes Papa",
+                thumbnail: "https://i.ytimg.com/vi/8S5wyQfH0CY/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/8S5wyQfH0CY"
+              },
+              {
+                id: "C0DPdy98e4c",
+                title: "Baby Shark Dance",
+                thumbnail: "https://i.ytimg.com/vi/C0DPdy98e4c/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/C0DPdy98e4c"
+              },
+              {
+                id: "jNQXAC9IVRw",
+                title: "PPAP (Pen Pineapple Apple Pen)",
+                thumbnail: "https://i.ytimg.com/vi/jNQXAC9IVRw/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/jNQXAC9IVRw"
+              },
+              {
+                id: "ZX3ncRvVgtg",
+                title: "Ed Sheeran - Shape of You",
+                thumbnail: "https://i.ytimg.com/vi/ZX3ncRvVgtg/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/ZX3ncRvVgtg"
+              },
+              {
+                id: "DLzxrzFCyOs",
+                title: "Wiz Khalifa - See You Again ft. Charlie Puth",
+                thumbnail: "https://i.ytimg.com/vi/DLzxrzFCyOs/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/DLzxrzFCyOs"
+              },
+              {
+                id: "7YIb3w2fM2A",
+                title: "Katy Perry - Roar",
+                thumbnail: "https://i.ytimg.com/vi/7YIb3w2fM2A/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/7YIb3w2fM2A"
+              },
+              {
+                id: "pRpeEdMmmQ0",
+                title: "Taylor Swift - Shake It Off",
+                thumbnail: "https://i.ytimg.com/vi/pRpeEdMmmQ0/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/pRpeEdMmmQ0"
+              },
+              {
+                id: "tAGnKpE4NCI",
+                title: "Mark Ronson - Uptown Funk ft. Bruno Mars",
+                thumbnail: "https://i.ytimg.com/vi/tAGnKpE4NCI/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/tAGnKpE4NCI"
+              },
+              {
+                id: "LRP8OYEfb0U",
+                title: "The Chainsmokers - Closer ft. Halsey",
+                thumbnail: "https://i.ytimg.com/vi/LRP8OYEfb0U/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/LRP8OYEfb0U"
+              },
+              {
+                id: "K4DyBug242c",
+                title: "Luis Fonsi - Échame La Culpa (Official Video) ft. Demi Lovato",
+                thumbnail: "https://i.ytimg.com/vi/K4DyBug242c/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/K4DyBug242c"
+              },
+              {
+                id: "5ISu9jzK1rA",
+                title: "Clean Bandit - Rockabye ft. Sean Paul & Anne-Marie",
+                thumbnail: "https://i.ytimg.com/vi/5ISu9jzK1rA/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/5ISu9jzK1rA"
+              },
+              {
+                id: "E8W7L5jCo40",
+                title: "The Chainsmokers - Don't Let Me Down ft. Daya",
+                thumbnail: "https://i.ytimg.com/vi/E8W7L5jCo40/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/E8W7L5jCo40"
+              },
+              {
+                id: "cFFZJGm4l_U",
+                title: "DNCE - Cake By The Ocean",
+                thumbnail: "https://i.ytimg.com/vi/cFFZJGm4l_U/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/cFFZJGm4l_U"
+              },
+              {
+                id: "yQFe1VqB20M",
+                title: "Twenty One Pilots - Stressed Out",
+                thumbnail: "https://i.ytimg.com/vi/yQFe1VqB20M/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/yQFe1VqB20M"
+              },
+              {
+                id: "LFBuV4CLG3c",
+                title: "The Weeknd - Starboy ft. Daft Punk",
+                thumbnail: "https://i.ytimg.com/vi/LFBuV4CLG3c/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/LFBuV4CLG3c"
+              },
+              {
+                id: "A5o-sw4gReg",
+                title: "M Pitbull - Timber ft. Ke$ha",
+                thumbnail: "https://i.ytimg.com/vi/A5o-sw4gReg/maxresdefault.jpg",
+                source: "YouTube Popular",
+                date: new Date().toDateString(),
+                embedUrl: "https://www.youtube.com/embed/A5o-sw4gReg"
+              }
+            ];
+            console.log("Loaded 20 sample YouTube videos.");
+            return sampleVideos;
+          },
+        },
+      ];
+      return await tryFetchSources(sources);
     }
     async function tryFetchForeignImages() {
       const sources = [
@@ -531,6 +1075,7 @@
             const out = [];
             for (const c of children) {
               const post = c.data;
+              if (post.over_18) continue; // Skip NSFW
               const url = post.preview?.images?.[0]?.source?.url?.replace(/&amp;/g, "&") || post.url;
               if (url && (url.endsWith('.jpg') || url.endsWith('.png') || url.includes('i.redd.it') || url.includes('i.imgur.com') || url.startsWith('http'))) {
                 const date = post.created_utc ? new Date(post.created_utc * 1000).toDateString() : null;
@@ -548,6 +1093,7 @@
             const out = [];
             for (const c of children) {
               const post = c.data;
+              if (post.over_18) continue; // Skip NSFW
               const url = post.preview?.images?.[0]?.source?.url?.replace(/&amp;/g, "&") || post.url;
               if (url) {
                 const date = post.created_utc ? new Date(post.created_utc * 1000).toDateString() : null;
@@ -561,7 +1107,6 @@
       return await tryFetchSources(sources);
     }
     async function tryFetchDomesticImages() {
-      // Domestic sources — memes.tw (may be limited due to JS rendering) + Bilibili dynamic images
       const CORS_PROXY = 'https://api.allorigins.win/raw?url=';
       const targetUrl = 'https://memes.tw/';
       const sources = [
@@ -574,7 +1119,6 @@
             console.log("Parsing memes.tw HTML...");
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, "text/html");
-            // Enhanced selectors for memes.tw - trying more patterns based on common blog/meme site structures
             const memeElements = doc.querySelectorAll('img[src*="jpg"], img[src*="png"], img[data-src*="jpg"], img[data-src*="png"], .entry-content img, .post-content img, .meme-container img, article img, .wp-post-image');
             const out = [];
             let i = 0;
@@ -582,10 +1126,8 @@
               if (i >= 50) break;
               let src = img.src || img.getAttribute('data-src') || img.getAttribute('data-lazy-src') || img.getAttribute('srcset')?.split(',')[0]?.trim().split(' ')[0];
               if (!src) continue;
-              // Clean up srcset if present
               if (src.includes('srcset')) src = src.split(',')[0].trim().split(' ')[0];
               if (src && (src.includes('.jpg') || src.includes('.png') || src.includes('.gif')) && !src.includes('avatar') && !src.includes('logo') && !src.includes('icon') && !src.includes('wp-includes')) {
-                // Find parent for title and date
                 let parent = img.closest('article, .post, .entry, .meme, .item, .card, div[class*="post"], div[class*="entry"], section') || img.parentElement;
                 if (!parent) parent = img;
                 let titleEl = parent.querySelector('h1, h2, h3, h4, .title, .headline, .post-title, .entry-title, p, .caption') || img;
@@ -594,7 +1136,6 @@
                 let dateEl = parent.querySelector('.date, .time, time, .published, [datetime], .post-date') || parent.querySelector('time');
                 let date = dateEl ? (dateEl.textContent || dateEl.getAttribute('datetime')).trim() : null;
                 if (date && !date.includes('Date')) date = new Date(date).toDateString() || date;
-                // Resolve URL
                 let fullUrl;
                 try {
                   fullUrl = src.startsWith('http') ? src : new URL(src, targetUrl).href;
@@ -621,7 +1162,7 @@
         },
         {
           name: "Bilibili_dynamic",
-          url: "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/all?type=1688&pn=1", // type=1688 for image-only dynamics
+          url: "https://api.bilibili.com/x/polymer/web-dynamic/v1/feed/all?type=1688&pn=1",
           headers: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
           },
@@ -633,13 +1174,11 @@
               const major = modules?.major || {};
               let pic = null;
               let title = null;
-              // Check for draw (image post)
               const draw = major?.draw || {};
               if (draw?.items && draw.items.length > 0) {
                 pic = draw.items[0]?.src;
                 title = draw.desc || null;
               }
-              // Fallback to archive cover (if it's a video with cover image)
               if (!pic) {
                 const archive = major?.archive || {};
                 pic = archive?.cover;
@@ -647,7 +1186,6 @@
               }
               if (pic && (pic.includes('.jpg') || pic.includes('.png'))) {
                 const id = item.id_str || `bili-${Math.random().toString(36).substr(2, 9)}`;
-                // Improved title: prefer desc/title, fallback to user name + "的图片"
                 if (!title) {
                   const user = item?.user || {};
                   title = user.name ? `${user.name}的图片` : "Bili 动态";
