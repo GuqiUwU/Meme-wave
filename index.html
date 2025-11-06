@@ -23,11 +23,13 @@
     // Added: 作者在看的番 page.
     // Added: Infinite scroll — load more when scroll to bottom.
     // Added: Background caching — preload inactive tab in background every 10s if <200 items.
+    // Added: Language switcher (ZH/EN) in header.
     // NOTE: This is still a front-end-only demo. CORS and API keys may be required for some sources.
     // Usage: Open index.html in browser (use dev proxy for CORS if needed).
     const { useEffect, useState, useRef, useMemo, useCallback } = React;
     function MemeWaveApp() {
       const [route, setRoute] = useState("feed");
+      const [lang, setLang] = useState("zh"); // 'zh' or 'en'
       const [foreignFeed, setForeignFeed] = useState([]);
       const [domesticFeed, setDomesticFeed] = useState([]);
       const [loading, setLoading] = useState(false);
@@ -67,7 +69,7 @@
           setHasMoreDomestic(dImgs.length >= 40);
         } catch (e) {
           console.error(e);
-          setError("加载部分梗失败，请检查控制台。可能是 CORS 或接口需要 API Key。");
+          setError(lang === 'en' ? "Failed to load some memes. Check console. Might be CORS or API Key required." : "加载部分梗失败，请检查控制台。可能是 CORS 或接口需要 API Key。");
         } finally {
           setLoading(false);
         }
@@ -120,18 +122,79 @@
         });
       }, [currentFeed, timeFilter]);
       const hasMore = activeTab === "foreign" ? hasMoreForeign : hasMoreDomestic;
+      const t = (key) => {
+        const translations = {
+          zh: {
+            title: "MemeWave",
+            hotMemes: "热梗墙",
+            animeWatching: "作者在看的番",
+            refresh: "刷新梗",
+            overseas: "海外",
+            domestic: "国内",
+            timeFilter: "时间筛选：",
+            all: "全部",
+            today: "今天",
+            week: "一周内",
+            month: "一月内",
+            loading: "抓梗中... 🍜",
+            noResults: "无匹配结果，尝试调整筛选或刷新。",
+            end: "~ 到底了 ~",
+            loadingMore: "加载更多...",
+            multiSource: "多来源合并 · 纯前端",
+            back: "返回",
+            animeTitle: "作者在看的番",
+            footer: "前端演示 — 已接入多个来源（见代码注释）。若无法显示图片，通常是 CORS 或需 API Key。可在本地用 dev proxy 解决。新增时间筛选（基于可用日期字段）及图片点击查看大图。新增无限滚动加载及后台缓存预加载。",
+            animeDesc: "当宅男哥哥不小心用可疑药物把自己的哥哥变成了女孩子后，展开的爆笑日常故事。",
+            episodes: "Season 1",
+            status: "Watching",
+            animeListNote: "Giu Giu 的追番列表 — 基于 MyAnimeList 数据，纯静态展示。",
+          },
+          en: {
+            title: "MemeWave",
+            hotMemes: "Hot Memes",
+            animeWatching: "Anime I'm Watching",
+            refresh: "Refresh Memes",
+            overseas: "Overseas",
+            domestic: "Domestic",
+            timeFilter: "Time Filter:",
+            all: "All",
+            today: "Today",
+            week: "This Week",
+            month: "This Month",
+            loading: "Fetching memes... 🍜",
+            noResults: "No matching results. Try adjusting filter or refresh.",
+            end: "~ End of feed ~",
+            loadingMore: "Loading more...",
+            multiSource: "Multi-source · Pure Frontend",
+            back: "Back",
+            animeTitle: "Anime I'm Watching",
+            footer: "Frontend demo — Integrated multiple sources (see code comments). If images fail to load, it's usually CORS or API Key needed. Solve with local dev proxy. Added time filtering (based on available date fields) and image click to view full size. Added infinite scroll and background caching preload.",
+            animeDesc: "After a shut-in brother accidentally turns his brother into a girl with suspicious drugs, an explosive daily life story unfolds.",
+            episodes: "Season 1",
+            status: "Watching",
+            animeListNote: "Giu Giu's anime watchlist — Based on MyAnimeList data, static display.",
+          }
+        };
+        return translations[lang][key] || key;
+      };
       return (
         <div className="min-h-screen bg-gray-900 text-gray-100 font-sans">
           <header className="p-4 flex items-center justify-between border-b border-gray-800">
-            <h1 className="text-2xl font-bold tracking-tight">MemeWave</h1>
+            <h1 className="text-2xl font-bold tracking-tight">{t('title')}</h1>
             <nav className="flex items-center gap-2">
               <button onClick={() => setRoute("feed")} className={`px-3 py-1 rounded-md ${route === "feed" ? "bg-gray-800" : "bg-transparent"}`}>
-                热梗墙
+                {t('hotMemes')}
               </button>
               <button onClick={() => setRoute("anime")} className={`px-3 py-1 rounded-md ${route === "anime" ? "bg-gray-800" : "bg-transparent"}`}>
-                作者在看的番
+                {t('animeWatching')}
               </button>
-              <button onClick={loadFeeds} className="px-3 py-1 rounded-md bg-gray-800 ml-2">刷新梗</button>
+              <button onClick={loadFeeds} className="px-3 py-1 rounded-md bg-gray-800 ml-2">{t('refresh')}</button>
+              <button 
+                onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')} 
+                className="px-3 py-1 rounded-md bg-indigo-600 ml-2 text-sm"
+              >
+                {lang === 'zh' ? 'EN' : 'ZH'}
+              </button>
             </nav>
           </header>
           <main className="p-6">
@@ -149,19 +212,20 @@
                 loadMore={loadMoreFeed}
                 hasMore={hasMore}
                 isLoadingMore={isLoadingMore}
+                t={t}
               />
             ) : (
-              <AnimePage onBack={() => setRoute("feed")} />
+              <AnimePage onBack={() => setRoute("feed")} t={t} />
             )}
             {selectedMeme && (
-              <ImageModal meme={selectedMeme} onClose={() => setSelectedMeme(null)} />
+              <ImageModal meme={selectedMeme} onClose={() => setSelectedMeme(null)} t={t} />
             )}
-            <footer className="mt-8 text-sm text-gray-500">前端演示 — 已接入多个来源（见代码注释）。若无法显示图片，通常是 CORS 或需 API Key。可在本地用 dev proxy 解决。新增时间筛选（基于可用日期字段）及图片点击查看大图。新增无限滚动加载及后台缓存预加载。</footer>
+            <footer className="mt-8 text-sm text-gray-500">{t('footer')}</footer>
           </main>
         </div>
       );
     }
-    function FeedPage({ loading, error, filteredFeed, activeTab, setActiveTab, timeFilter, setTimeFilter, selectedMeme, setSelectedMeme, loadMore, hasMore, isLoadingMore }) {
+    function FeedPage({ loading, error, filteredFeed, activeTab, setActiveTab, timeFilter, setTimeFilter, selectedMeme, setSelectedMeme, loadMore, hasMore, isLoadingMore, t }) {
       const sentinelRef = useRef(null);
       useEffect(() => {
         const observer = new IntersectionObserver(
@@ -185,25 +249,25 @@
         <section>
           <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
             <div className="flex gap-2">
-              <Tab label="海外" active={activeTab === "foreign"} onClick={() => setActiveTab("foreign")} />
-              <Tab label="国内" active={activeTab === "domestic"} onClick={() => setActiveTab("domestic")} />
+              <Tab label={t('overseas')} active={activeTab === "foreign"} onClick={() => setActiveTab("foreign")} />
+              <Tab label={t('domestic')} active={activeTab === "domestic"} onClick={() => setActiveTab("domestic")} />
             </div>
             <div className="flex items-center gap-2">
-              <label className="text-sm text-gray-400">时间筛选：</label>
+              <label className="text-sm text-gray-400">{t('timeFilter')}</label>
               <select
                 value={timeFilter}
                 onChange={(e) => setTimeFilter(e.target.value)}
                 className="px-2 py-1 rounded bg-gray-800 text-sm"
               >
-                <option value="all">全部</option>
-                <option value="today">今天</option>
-                <option value="week">一周内</option>
-                <option value="month">一月内</option>
+                <option value="all">{t('all')}</option>
+                <option value="today">{t('today')}</option>
+                <option value="week">{t('week')}</option>
+                <option value="month">{t('month')}</option>
               </select>
             </div>
-            <div className="text-sm text-gray-400">多来源合并 · 纯前端</div>
+            <div className="text-sm text-gray-400">{t('multiSource')}</div>
           </div>
-          {loading && <div className="py-12 text-center">抓梗中... 🍜</div>}
+          {loading && <div className="py-12 text-center">{t('loading')}</div>}
           {error && <div className="py-4 text-red-400">{error}</div>}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {filteredFeed.map((m) => (
@@ -212,11 +276,11 @@
           </div>
           {hasMore && (
             <div ref={sentinelRef} className="h-20 flex justify-center items-center">
-              {isLoadingMore ? <div className="text-gray-400">加载更多...</div> : <div className="text-gray-500">~ 到底了 ~</div>}
+              {isLoadingMore ? <div className="text-gray-400">{t('loadingMore')}</div> : <div className="text-gray-500">{t('end')}</div>}
             </div>
           )}
           {filteredFeed.length === 0 && !loading && (
-            <div className="py-12 text-center text-gray-400">无匹配结果，尝试调整筛选或刷新。</div>
+            <div className="py-12 text-center text-gray-400">{t('noResults')}</div>
           )}
         </section>
       );
@@ -243,7 +307,7 @@
               onLoad={() => setShow(true)}
               onError={() => setShow(true)}
             />
-            {!show && <div className="absolute inset-0 flex items-center justify-center">加载中...</div>}
+            {!show && <div className="absolute inset-0 flex items-center justify-center">Loading...</div>}
           </div>
           <div className="mt-2">
             <div className="text-sm font-semibold truncate">{meme.title}</div>
@@ -255,7 +319,7 @@
         </article>
       );
     }
-    function ImageModal({ meme, onClose }) {
+    function ImageModal({ meme, onClose, t }) {
       return (
         <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
           <div className="relative max-w-4xl max-h-full p-4">
@@ -279,15 +343,15 @@
         </div>
       );
     }
-    function AnimePage({ onBack }) {
+    function AnimePage({ onBack, t }) {
       const animeList = [
         {
           id: 1,
           title: "Onimai (お兄ちゃんはおしまい！)",
           poster: "https://tse4.mm.bing.net/th/id/OIP.uFVmquY49ImPRvhtYB5SeQHaKb?rs=1&pid=ImgDetMain&o=7&rm=3",
-          description: "当宅男哥哥不小心用可疑药物把自己的哥哥变成了女孩子后，展开的爆笑日常故事。",
-          episodes: "Season 1",
-          status: "Watching",
+          description: t('animeDesc'),
+          episodes: t('episodes'),
+          status: t('status'),
           url: "https://onimai.jp/"
         }
       ];
@@ -295,8 +359,8 @@
         <section>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <button onClick={onBack} className="px-3 py-1 rounded bg-gray-800">返回</button>
-              <div className="text-lg font-semibold">作者在看的番</div>
+              <button onClick={onBack} className="px-3 py-1 rounded bg-gray-800">{t('back')}</button>
+              <div className="text-lg font-semibold">{t('animeTitle')}</div>
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -304,7 +368,7 @@
               <AnimeCard key={anime.id} anime={anime} />
             ))}
           </div>
-          <div className="mt-4 text-sm text-gray-500">Giu Giu 的追番列表 — 基于 MyAnimeList 数据，纯静态展示。</div>
+          <div className="mt-4 text-sm text-gray-500">{t('animeListNote')}</div>
         </section>
       );
     }
@@ -323,7 +387,7 @@
               onLoad={() => setShow(true)}
               onError={() => setShow(true)}
             />
-            {!show && <div className="absolute inset-0 flex items-center justify-center">加载中...</div>}
+            {!show && <div className="absolute inset-0 flex items-center justify-center">Loading...</div>}
           </div>
           <div className="mt-2">
             <div className="text-sm font-semibold truncate">{anime.title}</div>
@@ -463,7 +527,7 @@
                 if (!parent) parent = img;
                 let titleEl = parent.querySelector('h1, h2, h3, h4, .title, .headline, .post-title, .entry-title, p, .caption') || img;
                 let title = (titleEl.textContent || titleEl.alt || titleEl.title || `Meme ${i + 1}`).trim().substring(0, 50);
-                if (!title || title.length < 3) title = `梗图 ${i + 1}`;
+                if (!title || title.length < 3) title = `Meme ${i + 1}`;
                 let dateEl = parent.querySelector('.date, .time, time, .published, [datetime], .post-date') || parent.querySelector('time');
                 let date = dateEl ? (dateEl.textContent || dateEl.getAttribute('datetime')).trim() : null;
                 if (date && !date.includes('Date')) date = new Date(date).toDateString() || date;
