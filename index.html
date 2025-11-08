@@ -12,7 +12,6 @@
   <style>
     /* Super round iOS-like liquid glass UI: Extremely rounded corners for pill-like elements, enhanced for realism */
     @import url('https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap');
- 
     body {
       font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       overflow-x: hidden; /* Prevent horizontal scroll on mobile */
@@ -20,7 +19,6 @@
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
- 
     /* Enhanced Dark mode liquid glass: More realistic with layered reflections and subtle noise */
     .glass-dark {
       background: rgba(55, 65, 81, 0.3); /* Slightly more transparent for depth */
@@ -35,7 +33,6 @@
       overflow: hidden;
       color: #f9fafb;
     }
- 
     /* Multi-layer reflections for realism: Top shine, side glow */
     .glass-dark::before {
       content: '';
@@ -56,7 +53,6 @@
       pointer-events: none;
       border-radius: 50px; /* Match container */
     }
- 
     .glass-dark::after {
       content: '';
       position: absolute;
@@ -68,7 +64,6 @@
       pointer-events: none;
       border-radius: 50px;
     }
- 
     /* Light mode liquid glass: Adjusted for realism */
     body.light-mode .glass-dark {
       background: rgba(255, 255, 255, 0.85); /* Higher opacity for light mode */
@@ -80,7 +75,6 @@
         inset 0 1px 0 rgba(255, 255, 255, 0.9);
       color: #111827;
     }
- 
     body.light-mode .glass-dark::before {
       background:
         linear-gradient(135deg,
@@ -91,48 +85,47 @@
         radial-gradient(circle at 20% 80%, rgba(0, 0, 0, 0.02) 0%, transparent 50%),
         radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.01) 0%, transparent 50%);
     }
- 
     body.light-mode .glass-dark::after {
       background: linear-gradient(to top, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
     }
- 
     /* Smooth, liquid animations - enhanced iOS-like spring */
     @keyframes slideInLiquid {
       from { opacity: 0; transform: translateY(30px) scale(0.95); }
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
- 
     @keyframes fadeInUpLiquid {
       from { opacity: 0; transform: translateY(40px); }
       to { opacity: 1; transform: translateY(0); }
     }
- 
     @keyframes pulseLiquidGlow {
       0%, 100% { box-shadow: 0 0 5px rgba(99, 102, 241, 0.3), 0 0 20px rgba(99, 102, 241, 0.1); }
       50% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.6), 0 0 40px rgba(99, 102, 241, 0.2); }
     }
- 
     @keyframes subtleRippleLiquid {
       0% { transform: scale(1); }
       50% { transform: scale(1.05); }
       100% { transform: scale(1); }
     }
- 
     @keyframes rippleLiquid {
       0% { transform: scale(0) translate(-50%, -50%); opacity: 1; }
       100% { transform: scale(6) translate(-50%, -50%); opacity: 0; }
     }
- 
     @keyframes settingsSlideDown {
       from { transform: translateY(-100%); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
- 
     @keyframes settingsSlideUp {
       from { transform: translateY(0); opacity: 1; }
       to { transform: translateY(-100%); opacity: 0; }
     }
- 
+    @keyframes heartBeat {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+    }
+    .heart-filled {
+      color: #ff6b6b;
+      animation: heartBeat 0.3s ease-in-out;
+    }
     /* Enhanced Ripple effect with liquid feel and reflection shimmer */
     .ripple-effect-liquid {
       position: relative;
@@ -140,7 +133,6 @@
       transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); /* iOS spring */
       border-radius: 50px; /* Super round */
     }
- 
     .ripple-effect-liquid:hover {
       transform: translateY(-2px) scale(1.02);
       /* Add subtle reflection shift on hover */
@@ -148,7 +140,6 @@
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, transparent 50%);
       }
     }
- 
     .ripple-effect-liquid::before {
       content: '';
       position: absolute;
@@ -161,36 +152,29 @@
       transform: translate(-50%, -50%);
       animation: rippleLiquid 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
- 
     /* iOS-like tab container: but removed since single tab */
- 
     /* Liquid card animations - staggered iOS reveal */
     .card-enter-liquid {
       animation: fadeInUpLiquid 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
     }
- 
     .loading-pulse-liquid {
       animation: pulseLiquidGlow 2.5s infinite;
     }
- 
     .modal-fade-liquid {
       animation: slideInLiquid 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
- 
     /* Staggered grid with liquid delays - enhanced for iOS and mobile */
     .grid-item-liquid {
       opacity: 0;
       animation: fadeInUpLiquid 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
       transform: translateY(20px);
     }
- 
     .grid-item-liquid:nth-child(1) { animation-delay: 0.1s; }
     .grid-item-liquid:nth-child(2) { animation-delay: 0.2s; }
     .grid-item-liquid:nth-child(3) { animation-delay: 0.3s; }
     .grid-item-liquid:nth-child(4) { animation-delay: 0.4s; }
     .grid-item-liquid:nth-child(5) { animation-delay: 0.5s; }
     .grid-item-liquid:nth-child(6) { animation-delay: 0.6s; }
- 
     /* Glass cards with liquid hover, super round, mobile-optimized spacing */
     .meme-card-liquid, .anime-card-liquid, .video-card-liquid, .bill-card {
       transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -198,19 +182,16 @@
       overflow: hidden;
       /* Mobile: Reduce hover lift slightly for touch */
     }
- 
     .meme-card-liquid:hover, .anime-card-liquid:hover, .video-card-liquid:hover, .bill-card:hover {
       transform: translateY(-4px) scale(1.03);
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
     }
- 
     body.light-mode .meme-card-liquid:hover,
     body.light-mode .anime-card-liquid:hover,
     body.light-mode .video-card-liquid:hover,
     body.light-mode .bill-card:hover {
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
     }
- 
     /* Universal button hover with liquid, super round, mobile touch-friendly */
     button {
       transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -219,11 +200,9 @@
       min-height: 44px; /* iOS touch target */
       min-width: 44px;
     }
- 
     button:hover, button:active {
       transform: translateY(-1px) scale(1.02);
     }
- 
     select {
       transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       border-radius: 50px;
@@ -233,17 +212,14 @@
       width: 100%;
       max-width: 200px;
     }
- 
     body.light-mode select {
       background: rgba(0, 0, 0, 0.05);
     }
- 
     select:hover, select:focus {
       transform: scale(1.03);
       outline: none;
       box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
     }
- 
     /* Enhanced Password modal with glass, super round, mobile-centered */
     .password-modal-liquid {
       position: fixed;
@@ -256,7 +232,6 @@
       z-index: 100;
       padding: 1rem; /* Mobile padding */
     }
- 
     .password-input-liquid {
       padding: 16px;
       font-size: 18px;
@@ -271,13 +246,11 @@
       /* Mobile: Full width */
       max-width: 100%;
     }
- 
     body.light-mode .password-input-liquid {
       background: rgba(255, 255, 255, 0.9);
       color: #111827;
       border: 1px solid rgba(0, 0, 0, 0.1);
     }
- 
     /* Admin background with overlay for glass compatibility */
     .admin-bg-liquid {
       background-image: url('https://i.kym-cdn.com/editorials/icons/original/000/005/643/boykisser.jpeg');
@@ -286,7 +259,6 @@
       background-repeat: no-repeat;
       background-attachment: fixed;
     }
- 
     .admin-bg-liquid::before {
       content: "";
       position: fixed;
@@ -299,7 +271,6 @@
       pointer-events: none;
       z-index: -1;
     }
- 
     .video-player-liquid {
       position: relative;
       padding-bottom: 56.25%;
@@ -307,7 +278,6 @@
       overflow: hidden;
       border-radius: 40px; /* Rounder video */
     }
- 
     .video-player-liquid iframe {
       position: absolute;
       top: 0;
@@ -317,7 +287,6 @@
       border: none;
       border-radius: 40px;
     }
- 
     /* Progress bar with liquid gradient */
     .progress-bar-liquid {
       width: 100%;
@@ -326,11 +295,9 @@
       border-radius: 2px;
       overflow: hidden;
     }
- 
     body.light-mode .progress-bar-liquid {
       background: rgba(0, 0, 0, 0.1);
     }
- 
     .progress-fill-liquid {
       height: 100%;
       background: linear-gradient(90deg, #3b82f6, #22c55e);
@@ -338,28 +305,27 @@
       transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
       animation: progress-anim-liquid 3s infinite cubic-bezier(0.34, 1.56, 0.64, 1);
     }
- 
     @keyframes progress-anim-liquid {
       0% { width: 0%; }
       50% { width: 80%; }
       100% { width: 100%; }
     }
- 
-    /* Header glass, super round - enhanced mobile responsive */
+    /* Header glass, super round - enhanced mobile responsive, now sticky for better visibility */
     header {
       background: rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(25px);
       border-bottom: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 0 0 50px 50px;
       padding: 1rem; /* Reduced for mobile */
+      position: sticky; /* NEW: Sticky header to stay visible on scroll */
+      top: 0;
+      z-index: 50; /* Ensure above content */
       /* Mobile: Stack vertically if too many buttons */
     }
- 
     body.light-mode header {
       background: rgba(255, 255, 255, 0.9);
       border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
- 
     /* Enhanced Mobile header adjustments: Better wrapping and sizing */
     @media (max-width: 640px) {
       header {
@@ -394,7 +360,6 @@
         }
       }
     }
- 
     @media (max-width: 480px) {
       nav {
         grid-template-columns: 1fr 1fr; /* Two columns on tiny screens */
@@ -403,12 +368,10 @@
         animation-delay: 0s; /* Reduce stagger on mobile for speed */
       }
     }
- 
     /* Main content padding for iOS feel, mobile-optimized */
     main {
       padding: 20px;
     }
- 
     /* Footer subtle glass, super round, mobile full-width */
     footer {
       background: rgba(0, 0, 0, 0.2);
@@ -421,13 +384,11 @@
       text-align: center;
       overflow-wrap: break-word;
     }
- 
     body.light-mode footer {
       background: rgba(255, 255, 255, 0.7);
       color: #6b7280;
     }
- 
-    /* Enhanced loading more indicator, round, mobile-centered */
+    /* Enhanced loading more indicator, round, mobile-centered - now with manual button for better UX */
     .loading-more-indicator {
       display: flex;
       align-items: center;
@@ -442,13 +403,11 @@
       margin: 2rem auto;
       max-width: 90%;
     }
- 
     body.light-mode .loading-more-indicator {
       background: rgba(0, 0, 0, 0.05);
       border: 1px solid rgba(0, 0, 0, 0.1);
       color: #111827;
     }
- 
     .loading-dots {
       display: flex;
       gap: 4px;
@@ -467,7 +426,28 @@
       0%, 80%, 100% { transform: scale(0); }
       40% { transform: scale(1); }
     }
- 
+    /* NEW: Manual load more button for better mobile UX */
+    .load-more-btn {
+      display: block;
+      margin: 2rem auto;
+      padding: 12px 24px;
+      background: rgba(99, 102, 241, 0.8);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-height: 48px; /* Larger touch target on mobile */
+    }
+    .load-more-btn:hover {
+      background: rgba(99, 102, 241, 1);
+      transform: translateY(-2px);
+    }
+    .load-more-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
     /* Settings panel - iOS-like slide down, mobile full-width */
     .settings-panel {
       position: fixed;
@@ -488,16 +468,13 @@
       /* Mobile: Adjust height if needed */
       max-height: 80vh;
     }
- 
     body.light-mode .settings-panel {
       background: rgba(255, 255, 255, 0.95);
       color: #111827;
     }
- 
     .settings-panel.closing {
       animation: settingsSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
- 
     .settings-item {
       display: flex;
       justify-content: space-between;
@@ -505,11 +482,9 @@
       padding: 1rem 0;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
- 
     body.light-mode .settings-item {
       border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
- 
     .settings-toggle {
       position: relative;
       width: 50px;
@@ -519,15 +494,12 @@
       cursor: pointer;
       transition: background 0.3s ease;
     }
- 
     body.light-mode .settings-toggle {
       background: rgba(0, 0, 0, 0.1);
     }
- 
     .settings-toggle.active {
       background: #3b82f6;
     }
- 
     .settings-toggle::after {
       content: '';
       position: absolute;
@@ -540,11 +512,9 @@
       transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Add shadow for realism */
     }
- 
     body.light-mode .settings-toggle::after {
       background: #111827;
     }
- 
     .settings-toggle.active::after {
       transform: translateX(22px);
     }
@@ -601,6 +571,112 @@
       0% { opacity: 1; }
       100% { opacity: 1; }
     }
+    /* Enhanced sentinel for better auto-scroll detection on mobile - larger height and margin */
+    .sentinel-container {
+      height: 300px; /* Increased for more reliable trigger on fast scrolls and mobile */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      margin: 2rem 0; /* Added margin to ensure it's not too close to content */
+    }
+    /* Responsive grid improvements: Auto-fit for varying screen sizes */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Better auto-fit for larger cards on wide screens */
+      gap: 1.5rem; /* Increased base gap for better spacing */
+    }
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+      }
+    }
+    @media (max-width: 480px) {
+      .grid {
+        grid-template-columns: 1fr; /* Single column on very small screens */
+        gap: 0.75rem;
+      }
+      .sentinel-container {
+        height: 250px; /* Increased on tiny screens for better trigger */
+      }
+    }
+    /* NEW: Debug panel for admin - resizable, logs user actions */
+    .debug-panel {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 400px;
+      height: 300px;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      color: white;
+      font-family: monospace;
+      font-size: 12px;
+      overflow: hidden;
+      resize: both; /* Allow user to resize */
+      min-width: 300px;
+      min-height: 200px;
+      max-width: 80vw;
+      max-height: 80vh;
+    }
+    .debug-panel-header {
+      background: rgba(99, 102, 241, 0.2);
+      padding: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .debug-panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px;
+      white-space: pre-wrap;
+      line-height: 1.4;
+    }
+    .debug-panel button {
+      background: rgba(99, 102, 241, 0.8);
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .debug-panel button:hover {
+      background: rgba(99, 102, 241, 1);
+    }
+    /* NEW: Heart button styles */
+    .heart-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+    .heart-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+    .heart-icon {
+      font-size: 20px;
+      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 0 #000;
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100 min-h-screen">
@@ -628,12 +704,46 @@
       const [gestureStartY, setGestureStartY] = useState(0);
       const [isGesturing, setIsGesturing] = useState(false);
       const [billHitCount, setBillHitCount] = useState(0);
+      const [showDebug, setShowDebug] = useState(false); // Debug toggle, global once enabled
+      const [debugLogs, setDebugLogs] = useState([]); // Array of log messages
+      const [favorites, setFavorites] = useState([]); // NEW: Favorites state
       const bodyRef = useRef(document.body);
- 
+      const debugRef = useRef(null); // Ref for resizable panel
+      // NEW: Load favorites from localStorage on init
+      useEffect(() => {
+        const saved = localStorage.getItem('memeFavorites');
+        if (saved) {
+          setFavorites(JSON.parse(saved));
+        }
+      }, []);
+      // NEW: Save favorites to localStorage whenever changed
+      useEffect(() => {
+        localStorage.setItem('memeFavorites', JSON.stringify(favorites));
+      }, [favorites]);
+      // NEW: Function to toggle favorite
+      const toggleFavorite = useCallback((meme) => {
+        setFavorites(prev => {
+          const isFav = prev.some(f => f.id === meme.id);
+          if (isFav) {
+            return prev.filter(f => f.id !== meme.id);
+          } else {
+            return [...prev, meme];
+          }
+        });
+      }, []);
+      // Function to log user actions (for debug panel)
+      const logAction = useCallback((action, details = '') => {
+        const timestamp = new Date().toLocaleTimeString();
+        const log = `[${timestamp}] ${action}: ${details}`;
+        setDebugLogs(prev => [...prev.slice(-50), log]); // Keep last 50 logs
+      }, []);
       useEffect(() => {
         loadFeeds();
       }, []);
- 
+      // Log route changes
+      useEffect(() => {
+        logAction('Route changed', `to: ${route}`);
+      }, [route, logAction]);
       useEffect(() => {
         if (route === "admin") {
           bodyRef.current.classList.add('admin-bg-liquid');
@@ -649,7 +759,6 @@
           bodyRef.current.classList.remove('admin-bg-liquid', 'light-mode');
         };
       }, [route, theme]);
- 
       // Gesture handling for settings panel
       useEffect(() => {
         const handleTouchStart = (e) => {
@@ -658,7 +767,6 @@
             setIsGesturing(true);
           }
         };
- 
         const handleTouchMove = (e) => {
           if (!isGesturing || e.touches.length !== 1) return;
           const currentY = e.touches[0].clientY;
@@ -672,33 +780,31 @@
             }
           }
         };
- 
         const handleTouchEnd = () => {
           setIsGesturing(false);
           setGestureStartY(0);
         };
- 
         const root = document.getElementById('root');
         root.addEventListener('touchstart', handleTouchStart, { passive: true });
         root.addEventListener('touchmove', handleTouchMove, { passive: true });
         root.addEventListener('touchend', handleTouchEnd, { passive: true });
- 
         return () => {
           root.removeEventListener('touchstart', handleTouchStart);
           root.removeEventListener('touchmove', handleTouchMove);
           root.removeEventListener('touchend', handleTouchEnd);
         };
       }, [gestureStartY, isGesturing, showSettings]);
- 
       const handleAdminClick = () => {
+        logAction('Admin button clicked');
         setShowAdminPassword(true);
       };
       const handleBillHit = () => {
+        logAction('Bill hit', `Count: ${billHitCount + 1}`);
         setBillHitCount(prev => prev + 1);
       };
- 
       const handlePasswordSubmit = (e) => {
         e.preventDefault();
+        logAction('Admin password submitted', passwordInput ? 'correct' : 'wrong');
         if (passwordInput === "FURRYXD") {
           setRoute("admin");
           setShowAdminPassword(false);
@@ -708,44 +814,61 @@
           setPasswordInput("");
         }
       };
- 
+      // Enhanced loadFeeds with better error handling and always reset hasMoreForeign to true after refresh
       async function loadFeeds() {
         setLoading(true);
         setError(null);
+        setLoadTime('day'); // Always reset to 'day' on refresh for fresh content
         try {
-          const fImgs = await tryFetchForeignImages(loadTime);
-          setForeignFeed(shuffleArray(fImgs).slice(0, 40)); // Shuffle for variety, but dank prioritized by order
-          setHasMoreForeign(fImgs.length >= 40);
+          const fImgs = await tryFetchForeignImages('day'); // Force 'day' on refresh
+          const shuffled = shuffleArray(fImgs).slice(0, 40);
+          setForeignFeed(shuffled);
+          setHasMoreForeign(fImgs.length >= 40 || true); // Always set to true initially after refresh to enable loading more
         } catch (e) {
-          console.error(e);
           setError(lang === 'en' ? "Failed to load some memes. Check console. Might be CORS or API Key required." : "加载部分梗失败，请检查控制台。可能是 CORS 或接口需要 API Key。");
+          setHasMoreForeign(true); // Keep hasMore true even on error to allow retry
         } finally {
           setLoading(false);
         }
       }
- 
+      // Enhanced loadMoreFeed with better deduping, error handling, and cycling back to 'day' after 'all'
       const loadMoreFeed = useCallback(async () => {
         if (isLoadingMore) return;
         if (!hasMoreForeign) return;
+        logAction('Load more triggered', `time: ${loadTime}`);
         setIsLoadingMore(true);
         try {
           const times = ['day', 'week', 'month', 'year', 'all'];
           const currentIndex = times.indexOf(loadTime);
-          const nextTime = times[(currentIndex + 1) % times.length];
+          let nextTime = times[(currentIndex + 1) % times.length];
+          // Cycle back to 'day' after 'all' and fetch fresh to avoid stale data
+          if (nextTime === 'day') {
+          }
           const moreImgs = await tryFetchForeignImages(nextTime);
-          const newMemes = moreImgs.filter(m => !foreignFeed.some(c => c.id === m.id));
-          const toAdd = shuffleArray(newMemes).slice(0, 20);
-          const updatedFeed = [...foreignFeed, ...toAdd];
-          setForeignFeed(updatedFeed);
-          setHasMoreForeign(toAdd.length > 0 || moreImgs.length >= 20);
+          const existingIds = new Set(foreignFeed.map(m => m.id)); // Use Set for faster deduping
+          const newMemes = moreImgs.filter(m => !existingIds.has(m.id));
+          const toAdd = shuffleArray(newMemes).slice(0, 30); // Increase to 30 for more content per load
+          if (toAdd.length > 0) {
+            const updatedFeed = [...foreignFeed, ...toAdd];
+            setForeignFeed(updatedFeed);
+          } else {
+          }
           setLoadTime(nextTime);
+          // Set hasMoreForeign more aggressively: true if added any, or if fetched >= limit, or cycle back
+          setHasMoreForeign(toAdd.length > 0 || moreImgs.length >= 30 || nextTime !== 'all');
+          if (nextTime === 'all' && toAdd.length === 0) {
+            setHasMoreForeign(false); // Only false at end of all
+          }
         } catch (e) {
-          console.error(e);
+          // On error, cycle to next time anyway to retry
+          const times = ['day', 'week', 'month', 'year', 'all'];
+          const currentIndex = times.indexOf(loadTime);
+          setLoadTime(times[(currentIndex + 1) % times.length]);
+          setHasMoreForeign(true); // Keep true on error for retry
         } finally {
           setIsLoadingMore(false);
         }
-      }, [foreignFeed, hasMoreForeign, isLoadingMore, loadTime]);
- 
+      }, [foreignFeed, hasMoreForeign, isLoadingMore, loadTime, logAction]);
       const filteredFeed = useMemo(() => {
         const now = new Date();
         return foreignFeed.filter((m) => {
@@ -763,15 +886,14 @@
           }
         });
       }, [foreignFeed, timeFilter]);
- 
       const hasMore = hasMoreForeign;
- 
       const t = (key) => {
         const translations = {
           zh: {
             title: "MemeWave",
             hotMemes: "热梗墙",
             animeWatching: "作者在看的番",
+            favorites: "我的最爱",
             credits: "Credits",
             admin: "Admin",
             boyKisser: "Boy Kisser",
@@ -786,6 +908,7 @@
             noResults: "无匹配结果，尝试调整筛选或刷新。",
             end: "~ 到底了 ~",
             loadingMore: "加载更多中...",
+            loadMore: "加载更多",
             multiSource: "多来源合并 · 纯前端",
             back: "返回",
             animeTitle: "作者在看的番",
@@ -802,11 +925,16 @@
             settings: "设置",
             close: "关闭",
             minigame: "小游戏",
+            toggleDebug: "切换调试",
+            debugLogs: "调试日志",
+            closeDebug: "关闭调试",
+            favoritesEmpty: "暂无最爱，前往热梗墙收藏吧！",
           },
           en: {
             title: "MemeWave",
             hotMemes: "Hot Memes",
             animeWatching: "Anime I'm Watching",
+            favorites: "My Favorites",
             credits: "Credits",
             admin: "Admin",
             boyKisser: "Boy Kisser",
@@ -821,6 +949,7 @@
             noResults: "No matching results. Try adjusting filter or refresh.",
             end: "~ End of feed ~",
             loadingMore: "Loading more...",
+            loadMore: "Load More",
             multiSource: "Multi-source · Pure Frontend",
             back: "Back",
             animeTitle: "Anime I'm Watching",
@@ -837,41 +966,65 @@
             settings: "Settings",
             close: "Close",
             minigame: "Minigame",
+            toggleDebug: "Toggle Debug",
+            debugLogs: "Debug Logs",
+            closeDebug: "Close Debug",
+            favoritesEmpty: "No favorites yet, go to hot memes to add some!",
           }
         };
         return translations[lang][key] || key;
       };
- 
       const boyKisserMeme = {
         id: "boykisser",
         title: t('boyKisser'),
         url: "https://tse4.mm.bing.net/th/id/OIP.piRzWtMCSbpX-WL21vFMSgAAAA?rs=1&pid=ImgDetMain&o=7&rm=3",
         source: "Boy Kisser"
       };
- 
       const toggleTheme = () => {
+        logAction('Theme toggled', `to: ${theme === 'dark' ? 'light' : 'dark'}`);
         setTheme(theme === 'dark' ? 'light' : 'dark');
       };
- 
+      const toggleDebug = () => {
+        logAction('Debug toggled', showDebug ? 'off' : 'on');
+        setShowDebug(!showDebug);
+      };
       return (
         <div className="min-h-screen">
           <header className="p-4 flex items-center justify-between transition-all duration-400 flex-wrap">
             <h1 className="text-2xl font-bold tracking-tight ripple-effect-liquid">{t('title')}</h1>
             <nav className="flex items-center gap-2 flex-wrap justify-center">
               <button
-                onClick={() => setRoute("feed")}
+                onClick={() => {
+                  logAction('Nav clicked', 'feed');
+                  setRoute("feed");
+                }}
                 className={`px-4 py-2 ripple-effect-liquid glass-dark ${route === "feed" ? "bg-indigo-500/20" : ""}`}
               >
                 {t('hotMemes')}
               </button>
               <button
-                onClick={() => setRoute("anime")}
+                onClick={() => {
+                  logAction('Nav clicked', 'favorites');
+                  setRoute("favorites");
+                }}
+                className={`px-4 py-2 ripple-effect-liquid glass-dark ${route === "favorites" ? "bg-indigo-500/20" : ""}`}
+              >
+                {t('favorites')}
+              </button>
+              <button
+                onClick={() => {
+                  logAction('Nav clicked', 'anime');
+                  setRoute("anime");
+                }}
                 className={`px-4 py-2 ripple-effect-liquid glass-dark ${route === "anime" ? "bg-indigo-500/20" : ""}`}
               >
                 {t('animeWatching')}
               </button>
               <button
-                onClick={() => setRoute("credits")}
+                onClick={() => {
+                  logAction('Nav clicked', 'credits');
+                  setRoute("credits");
+                }}
                 className={`px-4 py-2 ripple-effect-liquid glass-dark ${route === "credits" ? "bg-indigo-500/20" : ""}`}
               >
                 {t('credits')}
@@ -883,26 +1036,38 @@
                 {t('admin')}
               </button>
               <button
-                onClick={loadFeeds}
+                onClick={() => {
+                  logAction('Refresh clicked');
+                  loadFeeds();
+                }}
                 className="px-4 py-2 bg-indigo-600 ml-2 ripple-effect-liquid loading-pulse-liquid"
               >
                 {t('refresh')}
               </button>
               <button
-                onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')}
+                onClick={() => {
+                  logAction('Language toggled', `to: ${lang === 'zh' ? 'en' : 'zh'}`);
+                  setLang(lang === 'zh' ? 'en' : 'zh');
+                }}
                 className="px-4 py-2 bg-indigo-600 ml-2 text-sm ripple-effect-liquid"
               >
                 {lang === 'zh' ? 'EN' : 'ZH'}
               </button>
               <button
-                onClick={() => setShowSettings(true)}
+                onClick={() => {
+                  logAction('Settings opened');
+                  setShowSettings(true);
+                }}
                 className="p-2 hover:bg-gray-800/50 transition-colors ml-2 ripple-effect-liquid glass-dark text-sm"
                 title={t('settings')}
               >
                 ⚙️
               </button>
               <button
-                onClick={() => setShowBoyKisser(true)}
+                onClick={() => {
+                  logAction('Boy Kisser opened');
+                  setShowBoyKisser(true);
+                }}
                 className="p-2 hover:bg-gray-800/50 transition-colors ml-2 ripple-effect-liquid glass-dark"
                 title={t('boyKisser')}
               >
@@ -921,26 +1086,60 @@
                 error={error}
                 filteredFeed={filteredFeed}
                 timeFilter={timeFilter}
-                setTimeFilter={setTimeFilter}
+                setTimeFilter={(val) => {
+                  logAction('Time filter changed', `to: ${val}`);
+                  setTimeFilter(val);
+                }}
                 selectedMeme={selectedMeme}
-                setSelectedMeme={setSelectedMeme}
+                setSelectedMeme={(meme) => {
+                  logAction('Meme selected', `title: ${meme?.title || 'none'}`);
+                  setSelectedMeme(meme);
+                }}
                 loadMore={loadMoreFeed}
                 hasMore={hasMore}
                 isLoadingMore={isLoadingMore}
                 t={t}
+                logAction={logAction}
+                favorites={favorites}
+                toggleFavorite={toggleFavorite}
+              />
+            ) : route === "favorites" ? (
+              <FavoritesPage
+                favorites={favorites}
+                t={t}
+                onBack={() => {
+                  logAction('Back from favorites');
+                  setRoute("feed");
+                }}
+                toggleFavorite={toggleFavorite}
               />
             ) : route === "credits" ? (
-              <CreditsPage onBack={() => setRoute("feed")} t={t} />
+              <CreditsPage onBack={() => {
+                logAction('Back from credits');
+                setRoute("feed");
+              }} t={t} />
             ) : route === "admin" ? (
-              <AdminPage billHitCount={billHitCount} onBillHit={handleBillHit} t={t} onBack={() => setRoute("feed")} />
+              <AdminPage billHitCount={billHitCount} onBillHit={handleBillHit} t={t} onBack={() => {
+                logAction('Back from admin');
+                setRoute("feed");
+              }} showDebug={showDebug} onToggleDebug={toggleDebug} debugLogs={debugLogs} />
             ) : (
-              <AnimePage onBack={() => setRoute("feed")} t={t} />
+              <AnimePage onBack={() => {
+                logAction('Back from anime');
+                setRoute("feed");
+              }} t={t} />
             )}
             {selectedMeme && (
-              <ImageModal meme={selectedMeme} onClose={() => setSelectedMeme(null)} t={t} />
+              <ImageModal meme={selectedMeme} onClose={() => {
+                logAction('Modal closed', 'meme');
+                setSelectedMeme(null);
+              }} t={t} />
             )}
             {showBoyKisser && (
-              <BoyKisserModal onClose={() => setShowBoyKisser(false)} t={t} />
+              <BoyKisserModal onClose={() => {
+                logAction('Modal closed', 'boy kisser');
+                setShowBoyKisser(false);
+              }} t={t} />
             )}
             {showAdminPassword && (
               <div className="password-modal-liquid modal-fade-liquid">
@@ -955,7 +1154,10 @@
                     autoFocus
                   />
                   <button type="submit" className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 transition-colors ripple-effect-liquid">Enter</button>
-                  <button type="button" onClick={() => setShowAdminPassword(false)} className="px-6 py-3 bg-gray-600 hover:bg-gray-700 transition-colors ripple-effect-liquid">Cancel</button>
+                  <button type="button" onClick={() => {
+                    logAction('Admin password cancelled');
+                    setShowAdminPassword(false);
+                  }} className="px-6 py-3 bg-gray-600 hover:bg-gray-700 transition-colors ripple-effect-liquid">Cancel</button>
                 </form>
               </div>
             )}
@@ -963,16 +1165,54 @@
               <SettingsPanel
                 theme={theme}
                 onToggleTheme={toggleTheme}
-                onClose={() => setShowSettings(false)}
+                onClose={() => {
+                  logAction('Settings closed');
+                  setShowSettings(false);
+                }}
                 t={t}
               />
             )}
             <footer className="mt-8 text-sm text-gray-400">{t('footer')}</footer>
           </main>
+          {/* Debug panel - global once enabled, shown if showDebug true */}
+          {showDebug && (
+            <div ref={debugRef} className="debug-panel glass-dark">
+              <div className="debug-panel-header">
+                <span>{t('debugLogs')}</span>
+                <div>
+                  <button onClick={toggleDebug}>{t('closeDebug')}</button>
+                </div>
+              </div>
+              <div className="debug-panel-content">
+                {debugLogs.join('\n')}
+              </div>
+            </div>
+          )}
         </div>
       );
     }
- 
+    // NEW: FavoritesPage component
+    function FavoritesPage({ favorites, t, onBack, toggleFavorite }) {
+      return (
+        <section>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <button onClick={onBack} className="px-4 py-2 bg-gray-800 ripple-effect-liquid">{t('back')}</button>
+              <div className="text-xl font-semibold">{t('favorites')}</div>
+            </div>
+          </div>
+          {favorites.length === 0 ? (
+            <div className="py-16 text-center text-gray-500">{t('favoritesEmpty')}</div>
+          ) : (
+            <div className="grid gap-6">
+              {favorites.map((m, index) => (
+                <MemeCardLiquid key={m.id} meme={m} onClick={() => {}} className="grid-item-liquid meme-card-liquid" style={{ animationDelay: `${(index % 6) * 0.1}s` }} favorites={favorites} toggleFavorite={toggleFavorite} />
+              ))}
+            </div>
+          )}
+        </section>
+      );
+    }
     function SettingsPanel({ theme, onToggleTheme, onClose, t }) {
       const [showSettings, setShowSettings] = useState(true); // Local state for animation class
       return (
@@ -993,7 +1233,6 @@
         </div>
       );
     }
- 
     function CreditsPage({ onBack, t }) {
       return (
         <section>
@@ -1014,17 +1253,21 @@
         </section>
       );
     }
- 
-    function FeedPage({ loading, error, filteredFeed, timeFilter, setTimeFilter, selectedMeme, setSelectedMeme, loadMore, hasMore, isLoadingMore, t }) {
+    // Enhanced FeedPage with better observer setup, manual trigger fallback
+    function FeedPage({ loading, error, filteredFeed, timeFilter, setTimeFilter, selectedMeme, setSelectedMeme, loadMore, hasMore, isLoadingMore, t, logAction, favorites, toggleFavorite }) {
       const sentinelRef = useRef(null);
       useEffect(() => {
         const observer = new IntersectionObserver(
           ([entry]) => {
             if (entry.isIntersecting && hasMore && !isLoadingMore) {
               loadMore();
+            } else if (entry.isIntersecting && !hasMore) {
             }
           },
-          { threshold: 0.1, rootMargin: '100px' } // Added rootMargin for better trigger on mobile
+          {
+            threshold: 0.5, // Increased for more reliable trigger
+            rootMargin: '100px' // Reduced to trigger earlier but not too aggressively
+          }
         );
         if (sentinelRef.current) {
           observer.observe(sentinelRef.current);
@@ -1035,7 +1278,32 @@
           }
         };
       }, [hasMore, isLoadingMore, loadMore]);
- 
+      // Add fallback: Listen for scroll end and manually trigger if sentinel not working
+      useEffect(() => {
+        let scrollTimeout;
+        const handleScroll = () => {
+          clearTimeout(scrollTimeout);
+          scrollTimeout = setTimeout(() => {
+            if (hasMore && !isLoadingMore) {
+              const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+              const scrollHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+              const clientHeight = document.documentElement.clientHeight || document.body.clientHeight;
+              if (scrollTop + clientHeight >= scrollHeight - 500) { // Within 500px of bottom
+                loadMore();
+              }
+            }
+          }, 300); // Debounce scroll
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => {
+          window.removeEventListener('scroll', handleScroll);
+          clearTimeout(scrollTimeout);
+        };
+      }, [hasMore, isLoadingMore, loadMore]);
+      const handleManualLoad = () => {
+        logAction('Manual load more clicked');
+        loadMore();
+      };
       return (
         <section>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
@@ -1056,13 +1324,13 @@
           </div>
           {loading && <div className="py-16 text-center loading-pulse-liquid">{t('loading')}</div>}
           {error && <div className="py-6 text-red-400 animate-pulse text-center">{error}</div>}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid gap-6"> {/* Use class-based grid for auto-fit */}
             {filteredFeed.map((m, index) => (
-              <MemeCardLiquid key={m.id} meme={m} onClick={() => setSelectedMeme(m)} className="grid-item-liquid meme-card-liquid" style={{ animationDelay: `${(index % 6) * 0.1}s` }} />
+              <MemeCardLiquid key={m.id} meme={m} onClick={() => setSelectedMeme(m)} className="grid-item-liquid meme-card-liquid" style={{ animationDelay: `${(index % 6) * 0.1}s` }} favorites={favorites} toggleFavorite={toggleFavorite} />
             ))}
           </div>
           {hasMore && (
-            <div ref={sentinelRef} className="h-32 flex justify-center items-center"> {/* Increased height for better mobile trigger */}
+            <div ref={sentinelRef} className="sentinel-container"> {/* Enhanced container */}
               {isLoadingMore ? (
                 <div className="loading-more-indicator loading-pulse-liquid">
                   <div className="loading-dots">
@@ -1073,7 +1341,17 @@
                   <span>{t('loadingMore')}</span>
                 </div>
               ) : (
-                <div className="text-gray-500">{t('end')}</div>
+                <>
+                  <div className="text-gray-500">{t('end')}</div>
+                  <button
+                    onClick={handleManualLoad}
+                    disabled={isLoadingMore}
+                    className="load-more-btn ripple-effect-liquid"
+                  >
+                    {t('loadMore')}
+                  </button> {/* Manual button always available as fallback */}
+                  <small className="text-xs text-gray-400">Scroll here or click to load more</small>
+                </>
               )}
             </div>
           )}
@@ -1083,17 +1361,21 @@
         </section>
       );
     }
- 
-    function AdminPage({ billHitCount, onBillHit, t, onBack }) {
+    // Enhanced AdminPage with debug toggle button, no video wall
+    function AdminPage({ billHitCount, onBillHit, t, onBack, showDebug, onToggleDebug, debugLogs }) {
       return (
         <section className="relative z-10">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-4">
               <button onClick={onBack} className="px-4 py-2 bg-gray-800 ripple-effect-liquid">{t('back')}</button>
               <div className="text-xl font-semibold">bill is gay ,i hate bill fukk bill</div>
+              {/* Debug toggle button */}
+              <button onClick={onToggleDebug} className="px-4 py-2 bg-red-600 ripple-effect-liquid">
+                {t('toggleDebug')}
+              </button>
             </div>
           </div>
-          {/* Bill Section */}
+          {/* Bill Section - no video wall */}
           <div className="flex flex-col items-center justify-center py-16">
             <h2 className="text-2xl font-bold mb-6 text-center">Click to beat Bill! Hits: {billHitCount}</h2>
             <div
@@ -1114,9 +1396,10 @@
         </section>
       );
     }
- 
-    function MemeCardLiquid({ meme, onClick, className }) {
+    // NEW: Enhanced MemeCardLiquid with heart button
+    function MemeCardLiquid({ meme, onClick, className, favorites = [], toggleFavorite }) {
       const [show, setShow] = useState(false);
+      const isFavorite = favorites.some(f => f.id === meme.id);
       return (
         <article
           className={`glass-dark p-4 overflow-hidden cursor-pointer ripple-effect-liquid ${className || ""}`}
@@ -1132,6 +1415,17 @@
               style={{ opacity: show ? 1 : 0 }}
             />
             {!show && <div className="absolute inset-0 flex items-center justify-center text-gray-500">Loading...</div>}
+            {/* NEW: Heart button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent card click
+                toggleFavorite(meme);
+              }}
+              className="heart-btn"
+              title={isFavorite ? "Remove from favorites" : "Add to favorites"}
+            >
+              <span className={`heart-icon ${isFavorite ? 'heart-filled' : ''}`}>♥</span>
+            </button>
           </div>
           <div className="mt-3">
             <div className="text-sm font-semibold truncate">{meme.title}</div>
@@ -1143,7 +1437,6 @@
         </article>
       );
     }
- 
     function VideoCardLiquid({ video, className }) {
       const [show, setShow] = useState(false);
       const handleClick = () => {
@@ -1157,7 +1450,7 @@
             <img
               src={video.thumbnail}
               alt={video.title}
-              className="w-full h-full object-cover transition-opacity duration-400 absolute top-0 left-0"
+              className="w-full h-48 object-cover transition-opacity duration-400 absolute top-0 left-0"
               onLoad={() => setShow(true)}
               onError={() => setShow(true)}
               style={{ opacity: show ? 1 : 0 }}
@@ -1180,7 +1473,6 @@
         </article>
       );
     }
- 
     function ImageModal({ meme, onClose, t }) {
       return (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 modal-fade-liquid backdrop-blur-sm">
@@ -1205,7 +1497,6 @@
         </div>
       );
     }
- 
     function BoyKisserModal({ onClose, t }) {
       const [showMinigame, setShowMinigame] = useState(false);
       const [isPlaying, setIsPlaying] = useState(false);
@@ -1213,7 +1504,6 @@
       const [currentSrc, setCurrentSrc] = useState('');
       const gifRef = useRef(null);
       const gifUrl = "https://i.kym-cdn.com/photos/images/original/002/548/076/2cf.gif";
-
       useEffect(() => {
         if (showMinigame && !staticSrc) {
           const img = new Image();
@@ -1235,7 +1525,6 @@
           img.src = gifUrl;
         }
       }, [showMinigame, staticSrc, gifUrl]);
-
       const handlePlayGif = () => {
         if (!gifRef.current || isPlaying || !staticSrc) return;
         setIsPlaying(true);
@@ -1250,7 +1539,6 @@
           }
         }, 2000);
       };
-
       return (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 modal-fade-liquid backdrop-blur-sm">
           <div className="relative max-w-4xl max-h-full p-6 animate-scale-in glass-dark">
@@ -1297,7 +1585,6 @@
         </div>
       );
     }
- 
     function AnimePage({ onBack, t }) {
       const animeList = [
         {
@@ -1318,7 +1605,7 @@
               <div className="text-xl font-semibold">{t('animeTitle')}</div>
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <div className="grid gap-6"> {/* Use class-based grid for consistency */}
             {animeList.map((anime, index) => (
               <AnimeCardLiquid key={anime.id} anime={anime} className="grid-item-liquid anime-card-liquid" style={{ animationDelay: `${index * 0.15}s` }} />
             ))}
@@ -1327,7 +1614,6 @@
         </section>
       );
     }
- 
     function AnimeCardLiquid({ anime, className }) {
       const [show, setShow] = useState(false);
       const handleClick = () => {
@@ -1355,7 +1641,6 @@
         </article>
       );
     }
- 
     // -------------------------- Fetching and source logic -------------------------- //
     // Helpers: timeout fetch
     async function fetchWithTimeout(url, opts = {}, timeout = 8000) {
@@ -1369,7 +1654,6 @@
         clearTimeout(id);
       }
     }
- 
     async function tryFetchSources(sources) {
       let allImgs = [];
       for (const s of sources) {
@@ -1383,15 +1667,13 @@
           const imgs = s.url ? await s.parser(data) : await s.parser();
           if (Array.isArray(imgs) && imgs.length > 0) {
             allImgs = allImgs.concat(imgs);
-            console.info(`source ${s.name} added ${imgs.length}`);
           }
         } catch (e) {
-          console.warn(`source ${s.name} failed:`, e);
+          // Warn but continue
         }
       }
       return allImgs;
     }
- 
     // Prioritize dankmemes: first in list, higher limit
     async function tryFetchForeignImages(time = 'day') {
       const sources = [
@@ -1467,7 +1749,6 @@
       ];
       return await tryFetchSources(sources);
     }
- 
     // Utilities
     function shuffleArray(a) {
       const arr = [...a];
@@ -1477,10 +1758,8 @@
       }
       return arr;
     }
- 
     // Render the app
     ReactDOM.render(<MemeWaveApp />, document.getElementById('root'));
   </script>
 </body>
 </html>
-
