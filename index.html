@@ -940,7 +940,7 @@
           setForeignFeed(shuffled);
           setHasMoreForeign(fImgs.length >= 40 || true); // Always set to true initially after refresh to enable loading more
         } catch (e) {
-          setError(lang === 'en' ? "Failed to load some memes. Check console. Might be CORS or API Key required." : "加载部分梗失败，请检查控制台。可能是 CORS 或接口需要 API Key。");
+          setError(lang === 'en' ? "Failed to load some memes. Check console. Might be CORS or API Key required." : "加载部分梗失败,请联系伟大的哈基米大大帮助你！");
           setHasMoreForeign(true); // Keep hasMore true even on error to allow retry
         } finally {
           setLoading(false);
@@ -1009,7 +1009,7 @@
             hotMemes: "热梗墙",
             animeWatching: "作者在看的番",
             favorites: "我的最爱",
-            boyKisser: "Boy Kisser",
+            boyKisser: "Boy Kisser(南通猫)",
             refresh: "刷新梗",
             unstable: "(不稳定)",
             timeFilter: "时间筛选：",
@@ -1026,8 +1026,8 @@
             back: "返回",
             animeTitle: "作者在看的番",
             videosTitle: "内置视频墙 (Bilibili Top + Douyin + YouTube)",
-            footer: "救命啊，有男同！",
-            animeDesc: "当宅男哥哥不小心用可疑药物把自己的哥哥变成了女孩子后，展开的爆笑日常故事。",
+            footer: "我爱哈基米   ---Giu Giu",
+            animeDesc: "当自宅警备员哥哥不小心用可疑药物把自己的哥哥变成了女孩子后，展开的爆笑日常故事。",
             episodes: "Season 1",
             status: "Watching",
             animeListNote: "Giu Giu 的追番列表 — 基于 MyAnimeList 数据，纯静态展示。",
@@ -1042,15 +1042,15 @@
             debugLogs: "调试日志",
             closeDebug: "关闭调试",
             favoritesEmpty: "暂无最爱，前往热梗墙收藏吧！",
-            admin: "Admin",
-            credits: "Credits",
+            admin: "管理员",
+            credits: "制作名单",
             customBg: "自定义背景",
             uploadBg: "上传背景",
             applyBg: "应用",
             removeBg: "移除",
             preview: "预览",
             victim: "受害者",
-            victimName: "傻子比乐",
+            victimName: "傻子比乐(IQ = -100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000)",
             enterAdmin: "进入管理",
             setBoyKisser: "设置 BoyKisser",
             language: "语言",
@@ -1059,15 +1059,15 @@
             ja: "日本語",
             devDiary: "开发日记",
             chapter1: "第一章:起始",
-            content1: "内容编写中",
-            starrySkyMode: "星空模式",
+            content1: "上次写的时候不会弄api key， 请了gpt弄，结果全是风景XD，grok帮我弄好了",
+            starrySkyMode: "星空模式(星球)",
           },
           en: {
             title: "MemeWave",
             hotMemes: "Hot Memes",
             animeWatching: "Anime I'm Watching",
             favorites: "My Favorites",
-            boyKisser: "Boy Kisser",
+            boyKisser: "Boy Kisser(oooooo u love boysssss)",
             refresh: "Refresh Memes",
             unstable: "(Unstable)",
             timeFilter: "Time Filter:",
@@ -1075,20 +1075,20 @@
             today: "Today",
             week: "This Week",
             month: "This Month",
-            loading: "Fetching memes... 🍜",
-            noResults: "No matching results. Try adjusting filter or refresh.",
-            end: "~ End of feed ~",
+            loading: "getting fresh memes... 🍜",
+            noResults: "No matching results.plz contact our cat god!!!.",
+            end: "~ End of memes ~",
             loadingMore: "Loading more...",
             loadMore: "Load More",
             multiSource: "Multi-source · Pure Frontend",
             back: "Back",
-            animeTitle: "Anime I'm Watching",
-            videosTitle: "Built-in Video Wall (Bilibili Top + Douyin + YouTube)",
-            footer: "ahhhhhhhhhhhhhhh.L bro",
+            animeTitle: "Anime that the author is Watching",
+            videosTitle: "deleted",
+            footer: "why r u lookin at this O.o",
             animeDesc: "After a shut-in brother accidentally turns his brother into a girl with suspicious drugs, an explosive daily life story unfolds.",
-            episodes: "Season 1",
+            episodes: "Season 1(people dk what time will s2 come)",
             status: "Watching",
-            animeListNote: "Giu Giu's anime watchlist — Based on MyAnimeList data, static display.",
+            animeListNote: "Giu Giu's anime watchlist",
             loadingVideos: "Loading videos...",
             theme: "Theme",
             dark: "Dark",
@@ -1108,7 +1108,7 @@
             removeBg: "Remove",
             preview: "Preview",
             victim: "Victim",
-            victimName: "Shazi Bi Le",
+            victimName: "dumb bill (IQ = -10000000000000000000000000000000000000000000000000000000000000)",
             enterAdmin: "Enter Admin",
             setBoyKisser: "Set BoyKisser",
             language: "Language",
@@ -1141,12 +1141,12 @@
             multiSource: "マルチソース · 純粋なフロントエンド",
             back: "戻る",
             animeTitle: "見ているアニメ",
-            videosTitle: "組み込みビデオウォール (Bilibili Top + Douyin + YouTube)",
+            videosTitle: "deleted",
             footer: "助けて、ゲイがいる！",
             animeDesc: "引きこもりの兄が怪しい薬で兄を女の子に変えてしまい、爆笑の日常が展開する。",
             episodes: "シーズン1",
             status: "視聴中",
-            animeListNote: "Giu Giuのアニメ視聴リスト — MyAnimeListデータに基づく静的表示。",
+            animeListNote: "Giu Giuのアニメ視聴リスト。",
             loadingVideos: "ビデオを読み込み中...",
             theme: "テーマ",
             dark: "ダーク",
@@ -1175,7 +1175,7 @@
             ja: "日本語",
             devDiary: "開発日記",
             chapter1: "第1章:開始",
-            content1: "コンテンツ執筆中",
+            content1: "conitsiwa wadaxiwa GiuGIu",
             starrySkyMode: "星空モード",
           }
         };
@@ -2115,6 +2115,7 @@
     ReactDOM.render(<MemeWaveApp />, document.getElementById('root'));
   </script>
   <script type="module">
+    //from bilibili :D
     // 导入三维模型库
     import * as THREE from "https://cdn.skypack.dev/three@0.136.0";
     // 导入轨道控制库
@@ -2323,3 +2324,4 @@
   </script>
 </body>
 </html>
+
