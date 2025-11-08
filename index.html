@@ -15,11 +15,11 @@
     body {
       font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       overflow-x: hidden; /* Prevent horizontal scroll on mobile */
-      transition: background-color 0.3s ease, color 0.3s ease;
+      transition: background-color 0.3s ease, color 0.3s ease, background-image 0.5s ease;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
-    /* Enhanced Dark mode liquid glass: More realistic with layered reflections and subtle noise */
+    /* Enhanced Dark mode liquid glass: More realistic with layered reflections and subtle noise - reduced opacity to avoid blocking */
     .glass-dark {
       background: rgba(55, 65, 81, 0.3); /* Slightly more transparent for depth */
       backdrop-filter: blur(30px) saturate(180%); /* Increased blur and saturation for liquid feel */
@@ -33,7 +33,7 @@
       overflow: hidden;
       color: #f9fafb;
     }
-    /* Multi-layer reflections for realism: Top shine, side glow */
+    /* Multi-layer reflections for realism: Top shine, side glow - reduced opacity to prevent blocking text/images */
     .glass-dark::before {
       content: '';
       position: absolute;
@@ -43,13 +43,13 @@
       height: 40%; /* Extended for better coverage */
       background:
         linear-gradient(135deg,
-          rgba(255, 255, 255, 0.2) 0%,
-          rgba(255, 255, 255, 0.1) 30%,
+          rgba(255, 255, 255, 0.08) 0%, /* Reduced from 0.2 */
+          rgba(255, 255, 255, 0.04) 30%, /* Reduced from 0.1 */
           transparent 70%
         ),
         /* Subtle noise for frosted glass realism */
-        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.03) 0%, transparent 50%);
+        radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.02) 0%, transparent 50%), /* Reduced */
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.01) 0%, transparent 50%); /* Reduced */
       pointer-events: none;
       border-radius: 50px; /* Match container */
     }
@@ -60,11 +60,33 @@
       left: 0;
       right: 0;
       height: 20%;
-      background: linear-gradient(to top, rgba(0, 0, 0, 0.1) 0%, transparent 100%);
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.05) 0%, transparent 100%); /* Reduced from 0.1 */
       pointer-events: none;
       border-radius: 50px;
     }
-    /* Light mode liquid glass: Adjusted for realism */
+    /* No reflections for settings panel */
+    .settings-panel.glass-dark::before,
+    .settings-panel.glass-dark::after {
+      content: none;
+    }
+    body.light-mode .settings-panel.glass-dark::before,
+    body.light-mode .settings-panel.glass-dark::after {
+      content: none;
+    }
+    /* For cards and other elements, ensure reflections don't block content */
+    .meme-card-liquid.glass-dark::before,
+    .anime-card-liquid.glass-dark::before,
+    .video-card-liquid.glass-dark::before,
+    .bill-card.glass-dark::before {
+      height: 30%; /* Reduce height on cards */
+      background:
+        linear-gradient(135deg,
+          rgba(255, 255, 255, 0.05) 0%, /* Further reduced */
+          rgba(255, 255, 255, 0.02) 30%,
+          transparent 70%
+        );
+    }
+    /* Light mode liquid glass: Adjusted for realism - reduced reflections */
     body.light-mode .glass-dark {
       background: rgba(255, 255, 255, 0.85); /* Higher opacity for light mode */
       backdrop-filter: blur(30px) saturate(180%);
@@ -78,19 +100,19 @@
     body.light-mode .glass-dark::before {
       background:
         linear-gradient(135deg,
-          rgba(0, 0, 0, 0.08) 0%,
-          rgba(0, 0, 0, 0.04) 30%,
+          rgba(0, 0, 0, 0.04) 0%, /* Reduced */
+          rgba(0, 0, 0, 0.02) 30%, /* Reduced */
           transparent 70%
         ),
-        radial-gradient(circle at 20% 80%, rgba(0, 0, 0, 0.02) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.01) 0%, transparent 50%);
+        radial-gradient(circle at 20% 80%, rgba(0, 0, 0, 0.01) 0%, transparent 50%), /* Reduced */
+        radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.005) 0%, transparent 50%); /* Reduced */
     }
     body.light-mode .glass-dark::after {
-      background: linear-gradient(to top, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+      background: linear-gradient(to top, rgba(255, 255, 255, 0.05) 0%, transparent 100%); /* Reduced */
     }
     /* Smooth, liquid animations - enhanced iOS-like spring */
     @keyframes slideInLiquid {
-      from { opacity: 0; transform: translateY(30px) scale(0.95); }
+      from { opacity: 0; transform: translateY(30px) scale(0.9); }
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
     @keyframes fadeInUpLiquid {
@@ -120,7 +142,7 @@
     }
     @keyframes heartBeat {
       0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.2); }
+      50% { transform: scale(1.3); }
     }
     .heart-filled {
       color: #ff6b6b;
@@ -130,11 +152,11 @@
     .ripple-effect-liquid {
       position: relative;
       overflow: hidden;
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); /* iOS spring */
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* More bouncy */
       border-radius: 50px; /* Super round */
     }
     .ripple-effect-liquid:hover {
-      transform: translateY(-2px) scale(1.02);
+      transform: translateY(-2px) scale(1.05);
       /* Add subtle reflection shift on hover */
       .glass-dark::before {
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, transparent 50%);
@@ -150,40 +172,34 @@
       background: radial-gradient(circle, rgba(99, 102, 241, 0.4) 0%, transparent 70%);
       border-radius: 50%;
       transform: translate(-50%, -50%);
-      animation: rippleLiquid 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: rippleLiquid 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     /* iOS-like tab container: but removed since single tab */
     /* Liquid card animations - staggered iOS reveal */
     .card-enter-liquid {
-      animation: fadeInUpLiquid 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+      animation: fadeInUpLiquid 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
     .loading-pulse-liquid {
       animation: pulseLiquidGlow 2.5s infinite;
     }
     .modal-fade-liquid {
-      animation: slideInLiquid 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: slideInLiquid 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     /* Staggered grid with liquid delays - enhanced for iOS and mobile */
     .grid-item-liquid {
       opacity: 0;
-      animation: fadeInUpLiquid 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
       transform: translateY(20px);
+      animation: fadeInUpLiquid 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
-    .grid-item-liquid:nth-child(1) { animation-delay: 0.1s; }
-    .grid-item-liquid:nth-child(2) { animation-delay: 0.2s; }
-    .grid-item-liquid:nth-child(3) { animation-delay: 0.3s; }
-    .grid-item-liquid:nth-child(4) { animation-delay: 0.4s; }
-    .grid-item-liquid:nth-child(5) { animation-delay: 0.5s; }
-    .grid-item-liquid:nth-child(6) { animation-delay: 0.6s; }
     /* Glass cards with liquid hover, super round, mobile-optimized spacing */
     .meme-card-liquid, .anime-card-liquid, .video-card-liquid, .bill-card {
-      transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       border-radius: 50px; /* Super round cards */
       overflow: hidden;
       /* Mobile: Reduce hover lift slightly for touch */
     }
     .meme-card-liquid:hover, .anime-card-liquid:hover, .video-card-liquid:hover, .bill-card:hover {
-      transform: translateY(-4px) scale(1.03);
+      transform: translateY(-6px) scale(1.1);
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
     }
     body.light-mode .meme-card-liquid:hover,
@@ -194,17 +210,17 @@
     }
     /* Universal button hover with liquid, super round, mobile touch-friendly */
     button {
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       border-radius: 50px; /* Pill-shaped buttons */
       /* Mobile: Ensure min touch target */
       min-height: 44px; /* iOS touch target */
       min-width: 44px;
     }
     button:hover, button:active {
-      transform: translateY(-1px) scale(1.02);
+      transform: translateY(-1px) scale(1.05);
     }
     select {
-      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       border-radius: 50px;
       background: rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(10px);
@@ -216,7 +232,7 @@
       background: rgba(0, 0, 0, 0.05);
     }
     select:hover, select:focus {
-      transform: scale(1.03);
+      transform: scale(1.05);
       outline: none;
       box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.3);
     }
@@ -302,8 +318,8 @@
       height: 100%;
       background: linear-gradient(90deg, #3b82f6, #22c55e);
       width: 0%;
-      transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-      animation: progress-anim-liquid 3s infinite cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: width 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      animation: progress-anim-liquid 3s infinite cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     @keyframes progress-anim-liquid {
       0% { width: 0%; }
@@ -436,7 +452,7 @@
       border: none;
       border-radius: 50px;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       min-height: 48px; /* Larger touch target on mobile */
     }
     .load-more-btn:hover {
@@ -463,7 +479,7 @@
       z-index: 200;
       padding: 2rem 1rem; /* Mobile side padding */
       overflow-y: auto;
-      animation: settingsSlideDown 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: settingsSlideDown 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       color: #f9fafb;
       /* Mobile: Adjust height if needed */
       max-height: 80vh;
@@ -473,7 +489,7 @@
       color: #111827;
     }
     .settings-panel.closing {
-      animation: settingsSlideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+      animation: settingsSlideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     .settings-item {
       display: flex;
@@ -492,7 +508,10 @@
       background: rgba(255, 255, 255, 0.2);
       border-radius: 50px;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: background 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     body.light-mode .settings-toggle {
       background: rgba(0, 0, 0, 0.1);
@@ -509,7 +528,7 @@
       height: 22px;
       background: white;
       border-radius: 50%;
-      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2); /* Add shadow for realism */
     }
     body.light-mode .settings-toggle::after {
@@ -517,6 +536,68 @@
     }
     .settings-toggle.active::after {
       transform: translateX(22px);
+    }
+    .settings-toggle .toggle-icon {
+      font-size: 16px;
+      z-index: 1;
+      opacity: 0.7;
+      transition: opacity 0.3s ease;
+    }
+    .settings-toggle.active .toggle-icon {
+      opacity: 1;
+    }
+    /* NEW: Custom background preview */
+    .bg-preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 20px;
+      object-fit: cover;
+      margin-top: 1rem;
+    }
+    /* Settings section toggle */
+    .settings-section {
+      margin-bottom: 2rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 20px;
+    }
+    body.light-mode .settings-section {
+      background: rgba(0, 0, 0, 0.05);
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      padding: 0.5rem 0;
+    }
+    .section-content {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .section-content.open {
+      max-height: 1000px;
+    }
+    /* Language cycle button */
+    .language-cycle-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 8px 12px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 14px;
+    }
+    body.light-mode .language-cycle-btn {
+      background: rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      color: #111827;
+    }
+    .language-cycle-btn:hover {
+      background: rgba(99, 102, 241, 0.2);
+      transform: scale(1.05);
     }
     /* Bill animations */
     @keyframes billShake {
@@ -559,7 +640,7 @@
       max-height: 300px;
       border-radius: 20px;
       cursor: pointer;
-      transition: transform 0.2s ease;
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
     .minigame-gif:hover {
       transform: scale(1.05);
@@ -666,12 +747,12 @@
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       z-index: 10;
     }
     .heart-btn:hover {
       background: rgba(255, 255, 255, 0.3);
-      transform: scale(1.1);
+      transform: scale(1.2);
     }
     .heart-icon {
       font-size: 20px;
@@ -694,7 +775,6 @@
       const [error, setError] = useState(null);
       const [selectedMeme, setSelectedMeme] = useState(null);
       const [showBoyKisser, setShowBoyKisser] = useState(false);
-      const [showAdminPassword, setShowAdminPassword] = useState(false);
       const [passwordInput, setPasswordInput] = useState("");
       const [hasMoreForeign, setHasMoreForeign] = useState(false);
       const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -707,6 +787,9 @@
       const [showDebug, setShowDebug] = useState(false); // Debug toggle, global once enabled
       const [debugLogs, setDebugLogs] = useState([]); // Array of log messages
       const [favorites, setFavorites] = useState([]); // NEW: Favorites state
+      // NEW: Custom background state
+      const [customBg, setCustomBg] = useState('');
+      const [starryEnabled, setStarryEnabled] = useState(false);
       const bodyRef = useRef(document.body);
       const debugRef = useRef(null); // Ref for resizable panel
       // NEW: Load favorites from localStorage on init
@@ -715,11 +798,41 @@
         if (saved) {
           setFavorites(JSON.parse(saved));
         }
+        // Load custom background
+        const savedBg = localStorage.getItem('memeCustomBg');
+        if (savedBg) {
+          setCustomBg(savedBg);
+        }
+        // Load starry
+        const savedStarry = localStorage.getItem('memeStarryEnabled');
+        if (savedStarry === 'true') {
+          setStarryEnabled(true);
+        }
       }, []);
       // NEW: Save favorites to localStorage whenever changed
       useEffect(() => {
         localStorage.setItem('memeFavorites', JSON.stringify(favorites));
       }, [favorites]);
+      // NEW: Save custom background
+      useEffect(() => {
+        if (customBg) {
+          localStorage.setItem('memeCustomBg', customBg);
+        } else {
+          localStorage.removeItem('memeCustomBg');
+        }
+      }, [customBg]);
+      useEffect(() => {
+        localStorage.setItem('memeStarryEnabled', starryEnabled);
+        if (starryEnabled) {
+          if (typeof window.initStarry === 'function') {
+            window.initStarry();
+          }
+        } else {
+          if (typeof window.disposeStarry === 'function') {
+            window.disposeStarry();
+          }
+        }
+      }, [starryEnabled]);
       // NEW: Function to toggle favorite
       const toggleFavorite = useCallback((meme) => {
         setFavorites(prev => {
@@ -747,18 +860,28 @@
       useEffect(() => {
         if (route === "admin") {
           bodyRef.current.classList.add('admin-bg-liquid');
+          if (starryEnabled) {
+            setStarryEnabled(false);
+          }
         } else {
           bodyRef.current.classList.remove('admin-bg-liquid');
+          if (theme === 'light') {
+            bodyRef.current.classList.add('light-mode');
+          } else {
+            bodyRef.current.classList.remove('light-mode');
+          }
+          // Apply custom background if not admin and not starry
+          if (!starryEnabled && customBg) {
+            bodyRef.current.style.backgroundImage = `url(${customBg})`;
+            bodyRef.current.style.backgroundSize = 'cover';
+            bodyRef.current.style.backgroundPosition = 'center';
+            bodyRef.current.style.backgroundRepeat = 'no-repeat';
+            bodyRef.current.style.backgroundAttachment = 'fixed';
+          } else if (!starryEnabled && route !== "admin") {
+            bodyRef.current.style.backgroundImage = 'linear-gradient(to bottom right, #111827, #1f2937, #111827)';
+          }
         }
-        if (theme === 'light') {
-          bodyRef.current.classList.add('light-mode');
-        } else {
-          bodyRef.current.classList.remove('light-mode');
-        }
-        return () => {
-          bodyRef.current.classList.remove('admin-bg-liquid', 'light-mode');
-        };
-      }, [route, theme]);
+      }, [route, theme, customBg, starryEnabled]);
       // Gesture handling for settings panel
       useEffect(() => {
         const handleTouchStart = (e) => {
@@ -794,14 +917,6 @@
           root.removeEventListener('touchend', handleTouchEnd);
         };
       }, [gestureStartY, isGesturing, showSettings]);
-      const handleAdminClick = () => {
-        logAction('Admin button clicked');
-        setShowAdminPassword(true);
-      };
-      const handleBillHit = () => {
-        logAction('Bill hit', `Count: ${billHitCount + 1}`);
-        setBillHitCount(prev => prev + 1);
-      };
       const handlePasswordSubmit = (e) => {
         e.preventDefault();
         logAction('Admin password submitted', passwordInput ? 'correct' : 'wrong');
@@ -894,8 +1009,6 @@
             hotMemes: "热梗墙",
             animeWatching: "作者在看的番",
             favorites: "我的最爱",
-            credits: "Credits",
-            admin: "Admin",
             boyKisser: "Boy Kisser",
             refresh: "刷新梗",
             unstable: "(不稳定)",
@@ -929,14 +1042,31 @@
             debugLogs: "调试日志",
             closeDebug: "关闭调试",
             favoritesEmpty: "暂无最爱，前往热梗墙收藏吧！",
+            admin: "Admin",
+            credits: "Credits",
+            customBg: "自定义背景",
+            uploadBg: "上传背景",
+            applyBg: "应用",
+            removeBg: "移除",
+            preview: "预览",
+            victim: "受害者",
+            victimName: "傻子比乐",
+            enterAdmin: "进入管理",
+            setBoyKisser: "设置 BoyKisser",
+            language: "语言",
+            zh: "中文",
+            en: "English",
+            ja: "日本語",
+            devDiary: "开发日记",
+            chapter1: "第一章:起始",
+            content1: "内容编写中",
+            starrySkyMode: "星空模式",
           },
           en: {
             title: "MemeWave",
             hotMemes: "Hot Memes",
             animeWatching: "Anime I'm Watching",
             favorites: "My Favorites",
-            credits: "Credits",
-            admin: "Admin",
             boyKisser: "Boy Kisser",
             refresh: "Refresh Memes",
             unstable: "(Unstable)",
@@ -970,9 +1100,100 @@
             debugLogs: "Debug Logs",
             closeDebug: "Close Debug",
             favoritesEmpty: "No favorites yet, go to hot memes to add some!",
+            admin: "Admin",
+            credits: "Credits",
+            customBg: "Custom Background",
+            uploadBg: "Upload Background",
+            applyBg: "Apply",
+            removeBg: "Remove",
+            preview: "Preview",
+            victim: "Victim",
+            victimName: "Shazi Bi Le",
+            enterAdmin: "Enter Admin",
+            setBoyKisser: "Set BoyKisser",
+            language: "Language",
+            zh: "Chinese",
+            en: "English",
+            ja: "Japanese",
+            devDiary: "Development Diary",
+            chapter1: "Chapter 1: Start",
+            content1: "Content being written",
+            starrySkyMode: "Starry Sky Mode",
+          },
+          ja: {
+            title: "MemeWave",
+            hotMemes: "ホットミーム",
+            animeWatching: "見ているアニメ",
+            favorites: "お気に入り",
+            boyKisser: "Boy Kisser",
+            refresh: "ミームを更新",
+            unstable: "(不安定)",
+            timeFilter: "時間フィルター：",
+            all: "すべて",
+            today: "今日",
+            week: "今週",
+            month: "今月",
+            loading: "ミームを取得中... 🍜",
+            noResults: "一致する結果なし。フィルターを調整するか更新を試してください。",
+            end: "~ フィードの終わり ~",
+            loadingMore: "さらに読み込み中...",
+            loadMore: "さらに読み込む",
+            multiSource: "マルチソース · 純粋なフロントエンド",
+            back: "戻る",
+            animeTitle: "見ているアニメ",
+            videosTitle: "組み込みビデオウォール (Bilibili Top + Douyin + YouTube)",
+            footer: "助けて、ゲイがいる！",
+            animeDesc: "引きこもりの兄が怪しい薬で兄を女の子に変えてしまい、爆笑の日常が展開する。",
+            episodes: "シーズン1",
+            status: "視聴中",
+            animeListNote: "Giu Giuのアニメ視聴リスト — MyAnimeListデータに基づく静的表示。",
+            loadingVideos: "ビデオを読み込み中...",
+            theme: "テーマ",
+            dark: "ダーク",
+            light: "ライト",
+            settings: "設定",
+            close: "閉じる",
+            minigame: "ミニゲーム",
+            toggleDebug: "デバッグを切り替え",
+            debugLogs: "デバッグログ",
+            closeDebug: "デバッグを閉じる",
+            favoritesEmpty: "お気に入りなし。ホットミームから追加しよう！",
+            admin: "Admin",
+            credits: "クレジット",
+            customBg: "カスタム背景",
+            uploadBg: "背景をアップロード",
+            applyBg: "適用",
+            removeBg: "削除",
+            preview: "プレビュー",
+            victim: "犠牲者",
+            victimName: "Shazi Bi Le",
+            enterAdmin: "Adminに入る",
+            setBoyKisser: "BoyKisserを設定",
+            language: "言語",
+            zh: "中国語",
+            en: "英語",
+            ja: "日本語",
+            devDiary: "開発日記",
+            chapter1: "第1章:開始",
+            content1: "コンテンツ執筆中",
+            starrySkyMode: "星空モード",
           }
         };
         return translations[lang][key] || key;
+      };
+      // Language names for display
+      const langNames = {
+        zh: t('zh'),
+        en: t('en'),
+        ja: t('ja')
+      };
+      const languages = ['zh', 'en', 'ja'];
+      const currentLangIndex = languages.indexOf(lang);
+      const cycleLang = () => {
+        const nextIndex = (currentLangIndex + 1) % languages.length;
+        const nextLang = languages[nextIndex];
+        logAction('Language cycled', `to: ${nextLang}`);
+        setLang(nextLang);
       };
       const boyKisserMeme = {
         id: "boykisser",
@@ -988,6 +1209,18 @@
         logAction('Debug toggled', showDebug ? 'off' : 'on');
         setShowDebug(!showDebug);
       };
+      // NEW: Handle custom background upload
+      const handleBgUpload = (e, setPreview) => {
+        const file = e.target.files[0];
+        if (file && (file.type.startsWith('image/') || file.name.endsWith('.gif'))) {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            setPreview(ev.target.result);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+      // In settings, but since passed down
       return (
         <div className="min-h-screen">
           <header className="p-4 flex items-center justify-between transition-all duration-400 flex-wrap">
@@ -1022,36 +1255,12 @@
               </button>
               <button
                 onClick={() => {
-                  logAction('Nav clicked', 'credits');
-                  setRoute("credits");
-                }}
-                className={`px-4 py-2 ripple-effect-liquid glass-dark ${route === "credits" ? "bg-indigo-500/20" : ""}`}
-              >
-                {t('credits')}
-              </button>
-              <button
-                onClick={handleAdminClick}
-                className={`px-4 py-2 ripple-effect-liquid glass-dark ${route === "admin" ? "bg-indigo-500/20" : ""}`}
-              >
-                {t('admin')}
-              </button>
-              <button
-                onClick={() => {
                   logAction('Refresh clicked');
                   loadFeeds();
                 }}
                 className="px-4 py-2 bg-indigo-600 ml-2 ripple-effect-liquid loading-pulse-liquid"
               >
                 {t('refresh')}
-              </button>
-              <button
-                onClick={() => {
-                  logAction('Language toggled', `to: ${lang === 'zh' ? 'en' : 'zh'}`);
-                  setLang(lang === 'zh' ? 'en' : 'zh');
-                }}
-                className="px-4 py-2 bg-indigo-600 ml-2 text-sm ripple-effect-liquid"
-              >
-                {lang === 'zh' ? 'EN' : 'ZH'}
               </button>
               <button
                 onClick={() => {
@@ -1074,7 +1283,7 @@
                 <img
                   src="https://tse4.mm.bing.net/th/id/OIP.piRzWtMCSbpX-WL21vFMSgAAAA?rs=1&pid=ImgDetMain&o=7&rm=3"
                   alt={t('boyKisser')}
-                  className="w-6 h-6 rounded-full transition-transform duration-300 hover:scale-110"
+                  className="w-6 h-6 rounded-full transition-transform duration-300 hover:scale-115"
                 />
               </button>
             </nav>
@@ -1113,16 +1322,6 @@
                 }}
                 toggleFavorite={toggleFavorite}
               />
-            ) : route === "credits" ? (
-              <CreditsPage onBack={() => {
-                logAction('Back from credits');
-                setRoute("feed");
-              }} t={t} />
-            ) : route === "admin" ? (
-              <AdminPage billHitCount={billHitCount} onBillHit={handleBillHit} t={t} onBack={() => {
-                logAction('Back from admin');
-                setRoute("feed");
-              }} showDebug={showDebug} onToggleDebug={toggleDebug} debugLogs={debugLogs} />
             ) : (
               <AnimePage onBack={() => {
                 logAction('Back from anime');
@@ -1141,35 +1340,29 @@
                 setShowBoyKisser(false);
               }} t={t} />
             )}
-            {showAdminPassword && (
-              <div className="password-modal-liquid modal-fade-liquid">
-                <form onSubmit={handlePasswordSubmit} className="glass-dark p-8 flex flex-col items-center gap-4">
-                  <h2 className="text-2xl font-bold">Admin Password</h2>
-                  <input
-                    type="password"
-                    value={passwordInput}
-                    onChange={(e) => setPasswordInput(e.target.value)}
-                    className="password-input-liquid"
-                    placeholder="Enter password..."
-                    autoFocus
-                  />
-                  <button type="submit" className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 transition-colors ripple-effect-liquid">Enter</button>
-                  <button type="button" onClick={() => {
-                    logAction('Admin password cancelled');
-                    setShowAdminPassword(false);
-                  }} className="px-6 py-3 bg-gray-600 hover:bg-gray-700 transition-colors ripple-effect-liquid">Cancel</button>
-                </form>
-              </div>
-            )}
             {showSettings && (
               <SettingsPanel
                 theme={theme}
                 onToggleTheme={toggleTheme}
+                lang={lang}
+                onCycleLang={cycleLang}
+                langNames={langNames}
+                languages={languages}
+                customBg={customBg}
+                setCustomBg={setCustomBg}
+                starryEnabled={starryEnabled}
+                onToggleStarry={setStarryEnabled}
                 onClose={() => {
                   logAction('Settings closed');
                   setShowSettings(false);
                 }}
                 t={t}
+                billHitCount={billHitCount}
+                setBillHitCount={setBillHitCount}
+                logAction={logAction}
+                showDebug={showDebug}
+                onToggleDebug={toggleDebug}
+                debugLogs={debugLogs}
               />
             )}
             <footer className="mt-8 text-sm text-gray-400">{t('footer')}</footer>
@@ -1193,6 +1386,7 @@
     }
     // NEW: FavoritesPage component
     function FavoritesPage({ favorites, t, onBack, toggleFavorite }) {
+      const [selectedFavorite, setSelectedFavorite] = useState(null);
       return (
         <section>
           <div className="flex items-center justify-between mb-6">
@@ -1206,15 +1400,74 @@
           ) : (
             <div className="grid gap-6">
               {favorites.map((m, index) => (
-                <MemeCardLiquid key={m.id} meme={m} onClick={() => {}} className="grid-item-liquid meme-card-liquid" style={{ animationDelay: `${(index % 6) * 0.1}s` }} favorites={favorites} toggleFavorite={toggleFavorite} />
+                <MemeCardLiquid key={m.id} meme={m} onClick={() => setSelectedFavorite(m)} className={`grid-item-liquid meme-card-liquid`} style={{ animationDelay: `${Math.random() * 0.3 + (index % 6) * 0.1}s` }} favorites={favorites} toggleFavorite={toggleFavorite} />
               ))}
             </div>
+          )}
+          {selectedFavorite && (
+            <ImageModal meme={selectedFavorite} onClose={() => setSelectedFavorite(null)} t={t} />
           )}
         </section>
       );
     }
-    function SettingsPanel({ theme, onToggleTheme, onClose, t }) {
+    // Enhanced SettingsPanel with sections for admin, credits, custom bg
+    function SettingsPanel({ theme, onToggleTheme, lang, onCycleLang, langNames, languages, customBg, setCustomBg, starryEnabled, onToggleStarry, onClose, t, billHitCount, setBillHitCount, logAction, showDebug, onToggleDebug, debugLogs }) {
       const [showSettings, setShowSettings] = useState(true); // Local state for animation class
+      const [previewBg, setPreviewBg] = useState('');
+      const [showCustomSection, setShowCustomSection] = useState(false);
+      const [showAdminSection, setShowAdminSection] = useState(false);
+      const [showCreditsSection, setShowCreditsSection] = useState(false);
+      const [showDevDiarySection, setShowDevDiarySection] = useState(false);
+      const [showAdminPassword, setShowAdminPassword] = useState(false);
+      const [adminPasswordInput, setAdminPasswordInput] = useState('');
+      const [showAdminContent, setShowAdminContent] = useState(false);
+      useEffect(() => {
+        // Show current custom bg as preview on mount
+        if (customBg && !previewBg) {
+          setPreviewBg(customBg);
+        }
+      }, [customBg, previewBg]);
+      const handleBgUpload = (e) => {
+        const file = e.target.files[0];
+        if (file && (file.type.startsWith('image/') || file.name.endsWith('.gif'))) {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            setPreviewBg(ev.target.result);
+          };
+          reader.readAsDataURL(file);
+        }
+      };
+      const applyBg = () => {
+        if (previewBg) {
+          setCustomBg(previewBg);
+          setPreviewBg('');
+        }
+      };
+      const removeBg = () => {
+        setCustomBg('');
+        setPreviewBg('');
+      };
+      const setBoyKisserBg = () => {
+        setCustomBg('https://i.kym-cdn.com/editorials/icons/original/000/005/643/boykisser.jpeg');
+        setPreviewBg('');
+      };
+      const handleAdminPassword = (e) => {
+        e.preventDefault();
+        if (adminPasswordInput === "FURRYXD") {
+          setShowAdminContent(true);
+          setShowAdminPassword(false);
+          setAdminPasswordInput('');
+          logAction('Admin accessed in settings');
+        } else {
+          alert("Wrong password!");
+          setAdminPasswordInput('');
+        }
+      };
+      const handleBillHit = () => {
+        logAction('Bill hit in settings', `Count: ${billHitCount + 1}`);
+        setBillHitCount(prev => prev + 1);
+      };
+      const currentLangName = langNames[lang];
       return (
         <div className={`settings-panel glass-dark ${!showSettings ? 'closing' : ''}`}>
           <div className="flex justify-between items-center mb-6">
@@ -1222,35 +1475,151 @@
             <button onClick={() => { setShowSettings(false); setTimeout(onClose, 400); }} className="text-2xl ripple-effect-liquid">×</button>
           </div>
           <div className="space-y-4">
-            <div className="settings-item">
-              <span>{t('theme')}</span>
-              <div
-                className={`settings-toggle ${theme === 'light' ? 'active' : ''}`}
-                onClick={onToggleTheme}
-              ></div>
+            {/* Theme Section */}
+            <div className="settings-section">
+              <div className="settings-item">
+                <span>{t('theme')}</span>
+                <div
+                  className={`settings-toggle ${theme === 'light' ? 'active' : ''}`}
+                  onClick={onToggleTheme}
+                >
+                  <span className="toggle-icon">{theme === 'light' ? '☀️' : '🌙'}</span>
+                </div>
+              </div>
+            </div>
+            {/* Language Section */}
+            <div className="settings-section">
+              <div className="settings-item">
+                <span>{t('language')}</span>
+                <button
+                  className="language-cycle-btn"
+                  onClick={onCycleLang}
+                >
+                  {currentLangName}
+                </button>
+              </div>
+            </div>
+            {/* Custom Background Section */}
+            <div className="settings-section">
+              <div className="section-header" onClick={() => setShowCustomSection(!showCustomSection)}>
+                <span>{t('customBg')}</span>
+                <span>▼</span>
+              </div>
+              <div className={`section-content ${showCustomSection ? 'open' : ''}`}>
+                <button onClick={setBoyKisserBg} className="px-4 py-2 bg-indigo-600 mt-2 mr-2 ripple-effect-liquid">{t('setBoyKisser')}</button>
+                <button onClick={removeBg} className="px-4 py-2 bg-gray-600 mt-2 mr-2 ripple-effect-liquid">Default</button>
+                <input type="file" accept="image/*,.gif" onChange={handleBgUpload} className="mt-2" />
+                {previewBg && (
+                  <>
+                    <img src={previewBg} alt={t('preview')} className="bg-preview" />
+                    <button onClick={applyBg} className="px-4 py-2 bg-indigo-600 mt-2 mr-2 ripple-effect-liquid">{t('applyBg')}</button>
+                  </>
+                )}
+                {customBg && !previewBg && (
+                  <>
+                    <img src={customBg} alt={t('preview')} className="bg-preview" />
+                    <button onClick={removeBg} className="px-4 py-2 bg-red-600 mt-2 ripple-effect-liquid">{t('removeBg')}</button>
+                  </>
+                )}
+                <div className="mt-4">
+                  <label className="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={starryEnabled}
+                      onChange={e => onToggleStarry(e.target.checked)}
+                      className="mr-2 rounded"
+                    />
+                    <span>{t('starrySkyMode')}</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            {/* Development Diary Section */}
+            <div className="settings-section">
+              <div className="section-header" onClick={() => setShowDevDiarySection(!showDevDiarySection)}>
+                <span>{t('devDiary')}</span>
+                <span>▼</span>
+              </div>
+              <div className={`section-content ${showDevDiarySection ? 'open' : ''}`}>
+                <div className="glass-dark p-4 mt-2">
+                  <h3 className="text-xl font-bold mb-2">{t('chapter1')}</h3>
+                  <p className="text-sm text-gray-300">{t('content1')}</p>
+                </div>
+              </div>
+            </div>
+            {/* Admin Section */}
+            <div className="settings-section">
+              <div className="section-header" onClick={() => setShowAdminSection(!showAdminSection)}>
+                <span>{t('admin')}</span>
+                <span>▼</span>
+              </div>
+              <div className={`section-content ${showAdminSection ? 'open' : ''}`}>
+                {!showAdminPassword && !showAdminContent && (
+                  <button onClick={() => setShowAdminPassword(true)} className="px-4 py-2 bg-indigo-600 mt-2 ripple-effect-liquid">
+                    {t('enterAdmin')}
+                  </button>
+                )}
+                {showAdminPassword && (
+                  <form onSubmit={handleAdminPassword} className="mt-2">
+                    <input
+                      type="password"
+                      value={adminPasswordInput}
+                      onChange={(e) => setAdminPasswordInput(e.target.value)}
+                      className="password-input-liquid w-full"
+                      placeholder="Enter password..."
+                      autoFocus
+                    />
+                    <button type="submit" className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 transition-colors ripple-effect-liquid mt-2">Enter</button>
+                    <button type="button" onClick={() => setShowAdminPassword(false)} className="px-6 py-3 bg-gray-600 hover:bg-gray-700 transition-colors ripple-effect-liquid mt-2 ml-2">Cancel</button>
+                  </form>
+                )}
+                {showAdminContent && (
+                  <div className="mt-4 p-4 glass-dark">
+                    <h3 className="text-xl font-bold mb-2">bill is gay ,i hate bill fukk bill</h3>
+                    <button onClick={onToggleDebug} className="px-4 py-2 bg-red-600 ripple-effect-liquid mb-4">
+                      {t('toggleDebug')}
+                    </button>
+                    <div className="flex flex-col items-center justify-center">
+                      <h4 className="text-lg font-semibold mb-2">Click to beat Bill! Hits: {billHitCount}</h4>
+                      <div
+                        className={`glass-dark p-4 cursor-pointer ripple-effect-liquid bill-card ${billHitCount > 0 ? 'bill-hit' : ''}`}
+                        onClick={handleBillHit}
+                      >
+                        <img
+                          src="https://tse3.mm.bing.net/th/id/OIP.yrpMzlNbK8AHtpkyiVlueAHaHa?cb=ucfimgc2&rs=1&pid=ImgDetMain&o=7&rm=3"
+                          alt="Bill"
+                          className="bill-image mx-auto block"
+                        />
+                        <div className="mt-3 text-center">
+                          <div className="text-sm font-semibold">Bill</div>
+                          <div className="text-xs text-gray-400">Click me to hit!</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+            {/* Credits Section */}
+            <div className="settings-section">
+              <div className="section-header" onClick={() => setShowCreditsSection(!showCreditsSection)}>
+                <span>{t('credits')}</span>
+                <span>▼</span>
+              </div>
+              <div className={`section-content ${showCreditsSection ? 'open' : ''}`}>
+                <div className="glass-dark p-4 mt-2">
+                  <h3 className="text-xl font-bold mb-2">Production Staff</h3>
+                  <ul className="space-y-2 text-sm">
+                    <li><strong>Author:</strong> Giu Giu</li>
+                    <li><strong>Helpers:</strong> GPT and Grok (just API)</li>
+                    <li><strong>IDK:</strong> IDK</li>
+                    <li><strong>{t('victim')}:</strong> {t('victimName')}</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      );
-    }
-    function CreditsPage({ onBack, t }) {
-      return (
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <button onClick={onBack} className="px-4 py-2 bg-gray-800 ripple-effect-liquid">{t('back')}</button>
-              <div className="text-xl font-semibold">{t('credits')}</div>
-            </div>
-          </div>
-          <div className="glass-dark p-8 transition-all duration-400 hover:shadow-xl">
-            <h2 className="text-2xl font-bold mb-6">Production Staff</h2>
-            <ul className="space-y-3 text-sm">
-              <li><strong>Author:</strong> Giu Giu</li>
-              <li><strong>Helpers:</strong> GPT and Grok (just API)</li>
-              <li><strong>IDK:</strong> IDK</li>
-            </ul>
-          </div>
-        </section>
       );
     }
     // Enhanced FeedPage with better observer setup, manual trigger fallback
@@ -1326,7 +1695,7 @@
           {error && <div className="py-6 text-red-400 animate-pulse text-center">{error}</div>}
           <div className="grid gap-6"> {/* Use class-based grid for auto-fit */}
             {filteredFeed.map((m, index) => (
-              <MemeCardLiquid key={m.id} meme={m} onClick={() => setSelectedMeme(m)} className="grid-item-liquid meme-card-liquid" style={{ animationDelay: `${(index % 6) * 0.1}s` }} favorites={favorites} toggleFavorite={toggleFavorite} />
+              <MemeCardLiquid key={m.id} meme={m} onClick={() => setSelectedMeme(m)} className={`grid-item-liquid meme-card-liquid`} style={{ animationDelay: `${Math.random() * 0.3 + (index % 6) * 0.1}s` }} favorites={favorites} toggleFavorite={toggleFavorite} />
             ))}
           </div>
           {hasMore && (
@@ -1361,60 +1730,36 @@
         </section>
       );
     }
-    // Enhanced AdminPage with debug toggle button, no video wall
-    function AdminPage({ billHitCount, onBillHit, t, onBack, showDebug, onToggleDebug, debugLogs }) {
-      return (
-        <section className="relative z-10">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-4">
-              <button onClick={onBack} className="px-4 py-2 bg-gray-800 ripple-effect-liquid">{t('back')}</button>
-              <div className="text-xl font-semibold">bill is gay ,i hate bill fukk bill</div>
-              {/* Debug toggle button */}
-              <button onClick={onToggleDebug} className="px-4 py-2 bg-red-600 ripple-effect-liquid">
-                {t('toggleDebug')}
-              </button>
-            </div>
-          </div>
-          {/* Bill Section - no video wall */}
-          <div className="flex flex-col items-center justify-center py-16">
-            <h2 className="text-2xl font-bold mb-6 text-center">Click to beat Bill! Hits: {billHitCount}</h2>
-            <div
-              className={`glass-dark p-4 cursor-pointer ripple-effect-liquid bill-card ${billHitCount > 0 ? 'bill-hit' : ''}`}
-              onClick={onBillHit}
-            >
-              <img
-                src="https://tse3.mm.bing.net/th/id/OIP.yrpMzlNbK8AHtpkyiVlueAHaHa?cb=ucfimgc2&rs=1&pid=ImgDetMain&o=7&rm=3"
-                alt="Bill"
-                className="bill-image mx-auto block"
-              />
-              <div className="mt-3 text-center">
-                <div className="text-sm font-semibold">Bill</div>
-                <div className="text-xs text-gray-400">Click me to hit!</div>
-              </div>
-            </div>
-          </div>
-        </section>
-      );
-    }
-    // NEW: Enhanced MemeCardLiquid with heart button
+    // NEW: Enhanced MemeCardLiquid with heart button and image error handling
     function MemeCardLiquid({ meme, onClick, className, favorites = [], toggleFavorite }) {
       const [show, setShow] = useState(false);
+      const [imageError, setImageError] = useState(false);
       const isFavorite = favorites.some(f => f.id === meme.id);
       return (
         <article
           className={`glass-dark p-4 overflow-hidden cursor-pointer ripple-effect-liquid ${className || ""}`}
           onClick={onClick}
         >
-          <div className="relative w-full h-48 bg-gray-800 overflow-hidden transition-all duration-400 rounded-3xl">
-            <img
-              src={meme.url}
-              alt={meme.title}
-              className="w-full h-full object-cover transition-opacity duration-400"
-              onLoad={() => setShow(true)}
-              onError={() => setShow(true)}
-              style={{ opacity: show ? 1 : 0 }}
-            />
-            {!show && <div className="absolute inset-0 flex items-center justify-center text-gray-500">Loading...</div>}
+          <div className="relative w-full aspect-[4/3] bg-gray-800 overflow-hidden transition-all duration-400 rounded-3xl">
+            {imageError ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-gray-800 text-gray-500 rounded-3xl">
+                Failed to load image
+              </div>
+            ) : (
+              <img
+                src={meme.url}
+                alt={meme.title}
+                className="w-full h-full object-contain transition-opacity duration-400"
+                onLoad={() => setShow(true)}
+                onError={() => {
+                  console.error(`Image load failed: ${meme.url}`);
+                  setShow(true);
+                  setImageError(true);
+                }}
+                style={{ opacity: show ? 1 : 0 }}
+              />
+            )}
+            {!show && !imageError && <div className="absolute inset-0 flex items-center justify-center text-gray-500">Loading...</div>}
             {/* NEW: Heart button */}
             <button
               onClick={(e) => {
@@ -1446,11 +1791,11 @@
       };
       return (
         <article onClick={handleClick} className={`glass-dark p-4 overflow-hidden cursor-pointer ripple-effect-liquid ${className || ""}`}>
-          <div className="relative w-full h-48 bg-gray-800 overflow-hidden transition-all duration-400 video-player-liquid">
+          <div className="relative w-full aspect-video bg-gray-800 overflow-hidden transition-all duration-400 video-player-liquid">
             <img
               src={video.thumbnail}
               alt={video.title}
-              className="w-full h-48 object-cover transition-opacity duration-400 absolute top-0 left-0"
+              className="w-full h-full object-cover transition-opacity duration-400 absolute top-0 left-0"
               onLoad={() => setShow(true)}
               onError={() => setShow(true)}
               style={{ opacity: show ? 1 : 0 }}
@@ -1474,6 +1819,7 @@
       );
     }
     function ImageModal({ meme, onClose, t }) {
+      const [imageError, setImageError] = useState(false);
       return (
         <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 modal-fade-liquid backdrop-blur-sm">
           <div className="relative max-w-4xl max-h-full p-6 animate-scale-in glass-dark">
@@ -1483,11 +1829,18 @@
             >
               ×
             </button>
-            <img
-              src={meme.url}
-              alt={meme.title}
-              className="max-w-full max-h-[90vh] object-contain rounded-3xl shadow-2xl transition-transform duration-400 hover:scale-105"
-            />
+            {imageError ? (
+              <div className="max-w-full max-h-[90vh] flex items-center justify-center bg-gray-800 rounded-3xl shadow-2xl text-white text-xl font-semibold">
+                Failed to load image
+              </div>
+            ) : (
+              <img
+                src={meme.url}
+                alt={meme.title}
+                className="max-w-full max-h-[90vh] object-contain rounded-3xl shadow-2xl transition-transform duration-400 hover:scale-115"
+                onError={() => setImageError(true)}
+              />
+            )}
             <div className="mt-6 text-center text-white">
               <h3 className="text-xl font-semibold">{meme.title}</h3>
               <p className="text-sm text-gray-300 mt-1">{meme.source || "source"}</p>
@@ -1567,7 +1920,7 @@
                 <img
                   src="https://tse4.mm.bing.net/th/id/OIP.piRzWtMCSbpX-WL21vFMSgAAAA?rs=1&pid=ImgDetMain&o=7&rm=3"
                   alt={t('boyKisser')}
-                  className="max-w-full max-h-[90vh] object-contain rounded-3xl shadow-2xl transition-transform duration-400 hover:scale-105 mx-auto block"
+                  className="max-w-full max-h-[90vh] object-contain rounded-3xl shadow-2xl transition-transform duration-400 hover:scale-115 mx-auto block"
                 />
                 <div className="mt-6 text-center text-white">
                   <h3 className="text-xl font-semibold">{t('boyKisser')}</h3>
@@ -1607,7 +1960,7 @@
           </div>
           <div className="grid gap-6"> {/* Use class-based grid for consistency */}
             {animeList.map((anime, index) => (
-              <AnimeCardLiquid key={anime.id} anime={anime} className="grid-item-liquid anime-card-liquid" style={{ animationDelay: `${index * 0.15}s` }} />
+              <AnimeCardLiquid key={anime.id} anime={anime} className="grid-item-liquid anime-card-liquid" style={{ animationDelay: '0s' }} />
             ))}
           </div>
           <div className="mt-6 text-sm text-gray-500">{t('animeListNote')}</div>
@@ -1620,12 +1973,12 @@
         window.location.href = anime.url;
       };
       return (
-        <article onClick={handleClick} className={`glass-dark p-4 overflow-hidden cursor-pointer ripple-effect-liquid ${className || ""}`}>
-          <div className="relative w-full h-48 bg-gray-800 overflow-hidden transition-all duration-400 rounded-3xl">
+        <article onClick={handleClick} className={`glass-dark p-4 overflow-hidden cursor-pointer ripple-effect-liquid ${className || ""} max-w-xs mx-auto`}>
+          <div className="relative w-full aspect-[2/3] bg-gray-800 overflow-hidden transition-all duration-400 rounded-3xl">
             <img
               src={anime.poster}
               alt={anime.title}
-              className="w-full h-full object-cover transition-opacity duration-400"
+              className="w-full h-full object-contain transition-opacity duration-400"
               onLoad={() => setShow(true)}
               onError={() => setShow(true)}
               style={{ opacity: show ? 1 : 0 }}
@@ -1760,6 +2113,213 @@
     }
     // Render the app
     ReactDOM.render(<MemeWaveApp />, document.getElementById('root'));
+  </script>
+  <script type="module">
+    // 导入三维模型库
+    import * as THREE from "https://cdn.skypack.dev/three@0.136.0";
+    // 导入轨道控制库
+    import { OrbitControls } from "https://cdn.skypack.dev/three@0.136.0/examples/jsm/controls/OrbitControls";
+    let starryScene = null;
+    let starryRenderer = null;
+    let starryCamera = null;
+    let starryControls = null;
+    let starryClock = null;
+    let starryP = null;
+    let resizeHandler = null;
+    const PI2 = 6.283185307179586;
+    window.initStarry = () => {
+      if (starryScene) return;
+      console.clear();
+      // 创建场景
+      starryScene = new THREE.Scene();
+      // 设置场景背景颜色
+      starryScene.background = new THREE.Color(0x160016);
+      // 创建相机
+      starryCamera = new THREE.PerspectiveCamera(60, innerWidth / innerHeight, 1, 1000);
+      // 设置相机位置
+      starryCamera.position.set(0, 4, 21);
+      // 创建渲染器
+      starryRenderer = new THREE.WebGLRenderer();
+      // 设置渲染器大小
+      starryRenderer.setSize(innerWidth, innerHeight);
+      // 把渲染器加入到页面中
+      document.body.appendChild(starryRenderer.domElement);
+      starryRenderer.domElement.style.position = 'fixed';
+      starryRenderer.domElement.style.top = '0';
+      starryRenderer.domElement.style.left = '0';
+      starryRenderer.domElement.style.zIndex = '-1';
+      starryRenderer.domElement.style.pointerEvents = 'none';
+      resizeHandler = (event) => {
+        starryCamera.aspect = innerWidth / innerHeight;
+        starryCamera.updateProjectionMatrix();
+        starryRenderer.setSize(innerWidth, innerHeight);
+      };
+      window.addEventListener("resize", resizeHandler);
+      // 创建控制器
+      starryControls = new OrbitControls(starryCamera, starryRenderer.domElement);
+      // 开启阻尼效果
+      starryControls.enableDamping = true;
+      // 禁用面板
+      starryControls.enablePan = true;
+      starryControls.enabled = false;
+      // 创建全局uniform
+      let gu = { time: { value: 0 } };
+      // 创建点的大小数组和移动数组
+      let sizes = [];
+      let shift = [];
+      // 创建移动函数
+      let pushShift = () => {
+        shift.push(
+          Math.random() * Math.PI,
+          Math.random() * Math.PI * 2,
+          (Math.random() * 0.9 + 0.1) * Math.PI * 0.1,
+          Math.random() * 0.9 + 0.1
+        );
+      };
+      // 创建点的顶点数组（中间的球体）
+      // 创建一个长度为5万的数组pts并y用Array.prototype.map()方法遍历数组并对每个元素进行操作
+      let pts = new Array(50000).fill().map(p => {
+        // 每次遍历中，会向sizes数组中添加一个随机大小
+        sizes.push(Math.random() * 1.5 + 0.5);
+        // 调用pushShift()函数添加位置信息，并返回一个随机方向的THREE.Vector对象
+        pushShift();
+        return new THREE.Vector3().randomDirection().multiplyScalar(Math.random() * 0.5 + 9.5);
+        //
+      });
+      // 添加更多的点（旁边围绕的）
+      // 先循环生成十万个点
+      // 每次循环中生成一个随机数rand，再生成一个随机半径radius
+      for (let i = 0; i < 100000; i++) {
+        let r = 10, R = 40;
+        let rand = Math.pow(Math.random(), 1.5);
+        let radius = Math.sqrt(R * R * rand + (1 - rand) * r * r);
+        // 使用new THREE.Vector3().setFromCylindricalCoords()生成一个点。
+        pts.push(new THREE.Vector3().setFromCylindricalCoords(radius, Math.random() * 2 * Math.PI, (Math.random() - 0.5) * 2));
+        sizes.push(Math.random() * 1.5 + 0.5);
+        pushShift();
+      }
+      // 生成一个点g，同时将点的大小和位置信息添加到sizes和shift数组中
+      let g = new THREE.BufferGeometry().setFromPoints(pts);
+      // 创建了一个缓冲几何体并设置sizes和shift属性
+      // 注意这里的F要大写Float32BufferAttribute
+      g.setAttribute("sizes", new THREE.Float32BufferAttribute(sizes, 1));
+      g.setAttribute("shift", new THREE.Float32BufferAttribute(shift, 4));
+      // 创建点材质
+      let m = new THREE.PointsMaterial({
+        // 表示点的大小
+        size: 0.125,
+        // 设置材质为透明
+        transparent: true,
+        // 表示禁用深度测试，使点可以叠加
+        depthTest: false,
+        // 使用假发混合模式
+        blending: THREE.AdditiveBlending,
+        // 在材质编译之前修改颜色器，在这里，它用来替换顶点着色器和片元着色器，添加uniform
+        // 和attribute，以鸡自定义颜色和移动
+        onBeforeCompile: shader => {
+          shader.uniforms.time = gu.time;
+          // 首先，它为着色器设置了一个uniform变量time，该变量是在点材质中定义的，用来追踪时间
+          // 然后它定义了两个attribute变量sizes和shift，这两个变量是在缓冲几何体中定义的，用来控制点的大小和移动
+          // 最后使用replace方法来替换顶点着色器中的代码
+          shader.vertexShader = `
+            uniform float time;
+            attribute float sizes;
+            attribute vec4 shift;
+            varying vec3 vColor;
+            ${shader.vertexShader}
+          `
+            // 注意上面的 ` 不要漏掉了
+            // 使用replace来替换着色器中的代码
+            // 更新点的大小
+            .replace(
+              `gl_PointSize = size;`,
+              `gl_PointSize = size * sizes;`
+            )
+            // 更新点的颜色
+            .replace(
+              `#include <color_vertex>`,
+              `#include <color_vertex>
+              float d = length(abs(position)/vec3(40.,10.,40));
+              d=clamp(d,0.,1.);
+              vColor = mix(vec3(227.,155.,0.),vec3(100.,50.,255.),d)/255.;`
+            )
+            // 记得加上分号
+            // 更新点的移动
+            .replace(
+              `#include <begin_vertex>`,
+              `#include <begin_vertex>
+                  float t = time;
+                  float moveT = mod(shift.x + shift.z * t,${PI2});
+                  float moveS = mod(shift.y + shift.z * t,${PI2});
+                  transformed += vec3(cos(moveS) * sin(moveT),cos(moveT),sin(moveS)*sin(moveT)) * shift.w;
+                  `
+            );
+          // 修改片元着色器，用来让点的边缘更加圆滑
+          // 首先，定义一个varying变量vColor，这个变量是在顶点着色器中定义的，用来传递点的颜色到片段着色器
+          // 然后使用replace方法来替换片段着色器的代码
+          shader.fragmentShader = `
+              varying vec3 vColor;
+              ${shader.fragmentShader}
+          `.replace(
+            `#include <clipping_planes_fragment>`,
+            `#include <clipping_planes_fragment>
+                float d = length(gl_PointCoord.xy - 0.5);
+            `
+          ).replace(
+            // 记得加上空格
+            `vec4 diffuseColor = vec4( diffuse, opacity );`,
+            `vec4 diffuseColor = vec4( vColor, smoothstep(0.5, 0.1, d)/* * 0.5+0.5*/);`
+          );
+        }
+      });
+      // -------------------------------------------------------------
+      // 创建点云并将其添加到场景中，并设置渲染循环
+      starryP = new THREE.Points(g, m);
+      // 旋转顺序为"ZYX"
+      starryP.rotation.order = "ZYX";
+      // 旋转角度 0.2
+      starryP.rotation.z = 0.2;
+      // 把对象（p）添加到场景（scene）中
+      starryScene.add(starryP);
+      // 创建一个时钟对象clock
+      starryClock = new THREE.Clock();
+      // 渲染循环，每次循环中会更新控制器，更新p的旋转角度，更新时间
+      starryRenderer.setAnimationLoop(() => {
+        // 更新控制器
+        if (starryControls) starryControls.update();
+        // 获取时钟对象（clock）的已经流逝的时间（t）并将他乘0.5
+        // 先把时钟关了
+        let t = starryClock.getElapsedTime() * 0.5;
+        // 将gu.time.value 设置为t*Math.PI
+        gu.time.value = t * Math.PI;
+        // 将对象（p）的旋转角度y设置为t*0.05
+        if (starryP) starryP.rotation.y = t * 0.05;
+        // 渲染场景（scene）和相机（camera）
+        if (starryRenderer && starryScene && starryCamera) starryRenderer.render(starryScene, starryCamera);
+      });
+    };
+    window.disposeStarry = () => {
+      if (resizeHandler) {
+        window.removeEventListener("resize", resizeHandler);
+        resizeHandler = null;
+      }
+      if (starryRenderer) {
+        starryRenderer.dispose();
+        if (starryRenderer.domElement) {
+          starryRenderer.domElement.remove();
+        }
+        starryRenderer = null;
+      }
+      if (starryP) {
+        if (starryP.geometry) starryP.geometry.dispose();
+        if (starryP.material) starryP.material.dispose();
+        starryP = null;
+      }
+      starryScene = null;
+      starryCamera = null;
+      starryControls = null;
+      starryClock = null;
+    };
   </script>
 </body>
 </html>
