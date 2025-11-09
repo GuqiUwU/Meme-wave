@@ -199,7 +199,7 @@
       /* Mobile: Reduce hover lift slightly for touch */
     }
     .meme-card-liquid:hover, .anime-card-liquid:hover, .video-card-liquid:hover, .bill-card:hover {
-      transform: translateY(-6px) scale(1.1);
+      transform: translateY(-6px) scale(1.05);
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
     }
     body.light-mode .meme-card-liquid:hover,
@@ -758,6 +758,32 @@
       font-size: 20px;
       text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 0 #000;
     }
+    /* NEW: Broken heart button styles - positioned below the heart button */
+    .broken-heart-btn {
+      position: absolute;
+      top: 42px;
+      right: 8px;
+      background: rgba(255, 0, 0, 0.3);
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 10;
+      color: #ff0000;
+    }
+    .broken-heart-btn:hover {
+      background: rgba(255, 0, 0, 0.5);
+      transform: scale(1.2);
+    }
+    .broken-heart-icon {
+      font-size: 20px;
+      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 0 #000;
+    }
     /* NEW: Language selection modal styles */
     .lang-modal {
       position: fixed;
@@ -840,7 +866,8 @@
     body.low-performance .language-cycle-btn:hover,
     body.low-performance .lang-option:hover,
     body.low-performance .ripple-effect-liquid:hover,
-    body.low-performance .settings-panel.closing {
+    body.low-performance .settings-panel.closing,
+    body.low-performance .broken-heart-btn:hover {
       transform: none !important;
       box-shadow: none !important;
     }
@@ -891,6 +918,8 @@
       const [showDebug, setShowDebug] = useState(false); // Debug toggle, global once enabled
       const [debugLogs, setDebugLogs] = useState([]); // Array of log messages
       const [favorites, setFavorites] = useState([]); // NEW: Favorites state
+      // NEW: Blacklist state for broken heart
+      const [blacklisted, setBlacklisted] = useState([]);
       // NEW: Custom background state
       const [customBg, setCustomBg] = useState('');
       const [starryEnabled, setStarryEnabled] = useState(false);
@@ -919,6 +948,11 @@
         const saved = localStorage.getItem('memeFavorites');
         if (saved) {
           setFavorites(JSON.parse(saved));
+        }
+        // NEW: Load blacklist from localStorage
+        const savedBlacklist = localStorage.getItem('memeBlacklisted');
+        if (savedBlacklist) {
+          setBlacklisted(JSON.parse(savedBlacklist));
         }
         // Load custom background
         const savedBg = localStorage.getItem('memeCustomBg');
@@ -988,6 +1022,10 @@
       useEffect(() => {
         localStorage.setItem('memeFavorites', JSON.stringify(favorites));
       }, [favorites]);
+      // NEW: Save blacklist to localStorage whenever changed
+      useEffect(() => {
+        localStorage.setItem('memeBlacklisted', JSON.stringify(blacklisted));
+      }, [blacklisted]);
       // NEW: Save custom background
       useEffect(() => {
         if (customBg) {
@@ -1019,6 +1057,12 @@
           }
         });
       }, []);
+      // NEW: Function to add to blacklist (remove and block forever)
+      const addToBlacklist = useCallback((memeId) => {
+        setBlacklisted(prev => [...new Set([...prev, memeId])]);
+        setForeignFeed(prev => prev.filter(m => m.id !== memeId));
+        logAction('Added to blacklist', `id: ${memeId}`);
+      }, [logAction]);
       // Function to log user actions (for debug panel)
       const logAction = useCallback((action, details = '') => {
         const timestamp = new Date().toLocaleTimeString();
@@ -1125,9 +1169,11 @@
         setLoadTime('day'); // Always reset to 'day' on refresh for fresh content
         try {
           const fImgs = await tryFetchForeignImages('day'); // Force 'day' on refresh
-          const shuffled = shuffleArray(fImgs).slice(0, 40);
+          // Filter out blacklisted
+          const filteredImgs = fImgs.filter(img => !blacklisted.includes(img.id));
+          const shuffled = shuffleArray(filteredImgs).slice(0, 40);
           setForeignFeed(shuffled);
-          setHasMoreForeign(fImgs.length >= 40 || true); // Always set to true initially after refresh to enable loading more
+          setHasMoreForeign(filteredImgs.length >= 40 || true); // Always set to true initially after refresh to enable loading more
         } catch (e) {
           setError(lang === 'en' ? "Failed to load some memes. Check console. Might be CORS or API Key required." : "加载部分梗失败,请联系伟大的哈基米大大帮助你！");
           setHasMoreForeign(true); // Keep hasMore true even on error to allow retry
@@ -1149,8 +1195,10 @@
           if (nextTime === 'day') {
           }
           const moreImgs = await tryFetchForeignImages(nextTime);
+          // Filter out blacklisted
+          const filteredMoreImgs = moreImgs.filter(img => !blacklisted.includes(img.id));
           const existingIds = new Set(foreignFeed.map(m => m.id)); // Use Set for faster deduping
-          const newMemes = moreImgs.filter(m => !existingIds.has(m.id));
+          const newMemes = filteredMoreImgs.filter(m => !existingIds.has(m.id));
           const toAdd = shuffleArray(newMemes).slice(0, 30); // Increase to 30 for more content per load
           if (toAdd.length > 0) {
             const updatedFeed = [...foreignFeed, ...toAdd];
@@ -1159,7 +1207,7 @@
           }
           setLoadTime(nextTime);
           // Set hasMoreForeign more aggressively: true if added any, or if fetched >= limit, or cycle back
-          setHasMoreForeign(toAdd.length > 0 || moreImgs.length >= 30 || nextTime !== 'all');
+          setHasMoreForeign(toAdd.length > 0 || filteredMoreImgs.length >= 30 || nextTime !== 'all');
           if (nextTime === 'all' && toAdd.length === 0) {
             setHasMoreForeign(false); // Only false at end of all
           }
@@ -1172,10 +1220,12 @@
         } finally {
           setIsLoadingMore(false);
         }
-      }, [foreignFeed, hasMoreForeign, isLoadingMore, loadTime, logAction]);
+      }, [foreignFeed, hasMoreForeign, isLoadingMore, loadTime, blacklisted, logAction]);
       const filteredFeed = useMemo(() => {
         const now = new Date();
         return foreignFeed.filter((m) => {
+          // Filter out blacklisted
+          if (blacklisted.includes(m.id)) return false;
           if (timeFilter === "all" || !m.date) return true;
           const mDate = new Date(m.date);
           switch (timeFilter) {
@@ -1189,7 +1239,7 @@
               return true;
           }
         });
-      }, [foreignFeed, timeFilter]);
+      }, [foreignFeed, timeFilter, blacklisted]);
       const hasMore = hasMoreForeign;
       const t = (key) => {
         const translations = {
@@ -1519,6 +1569,8 @@
                 logAction={logAction}
                 favorites={favorites}
                 toggleFavorite={toggleFavorite}
+                blacklisted={blacklisted}
+                addToBlacklist={addToBlacklist}
               />
             ) : route === "favorites" ? (
               <FavoritesPage
@@ -1529,6 +1581,7 @@
                   setRoute("feed");
                 }}
                 toggleFavorite={toggleFavorite}
+                blacklisted={blacklisted}
               />
             ) : (
               <AnimePage onBack={() => {
@@ -1621,8 +1674,9 @@
       );
     }
     // NEW: FavoritesPage component
-    function FavoritesPage({ favorites, t, onBack, toggleFavorite }) {
+    function FavoritesPage({ favorites, t, onBack, toggleFavorite, blacklisted }) {
       const [selectedFavorite, setSelectedFavorite] = useState(null);
+      const filteredFavorites = useMemo(() => favorites.filter(fav => !blacklisted.includes(fav.id)), [favorites, blacklisted]);
       return (
         <section>
           <div className="flex items-center justify-between mb-6">
@@ -1631,12 +1685,12 @@
               <div className="text-xl font-semibold">{t('favorites')}</div>
             </div>
           </div>
-          {favorites.length === 0 ? (
+          {filteredFavorites.length === 0 ? (
             <div className="py-16 text-center text-gray-500">{t('favoritesEmpty')}</div>
           ) : (
             <div className="grid gap-6">
-              {favorites.map((m, index) => (
-                <MemeCardLiquid key={m.id} meme={m} onClick={() => setSelectedFavorite(m)} className={`grid-item-liquid meme-card-liquid`} style={{ animationDelay: `${Math.random() * 0.3 + (index % 6) * 0.1}s` }} favorites={favorites} toggleFavorite={toggleFavorite} />
+              {filteredFavorites.map((m, index) => (
+                <MemeCardLiquid key={m.id} meme={m} onClick={() => setSelectedFavorite(m)} className={`grid-item-liquid meme-card-liquid`} style={{ animationDelay: `${Math.random() * 0.3 + (index % 6) * 0.1}s` }} favorites={favorites} toggleFavorite={toggleFavorite} blacklisted={blacklisted} />
               ))}
             </div>
           )}
@@ -1871,7 +1925,7 @@
       );
     }
     // Enhanced FeedPage with better observer setup, manual trigger fallback
-    function FeedPage({ loading, error, filteredFeed, timeFilter, setTimeFilter, selectedMeme, setSelectedMeme, loadMore, hasMore, isLoadingMore, t, logAction, favorites, toggleFavorite }) {
+    function FeedPage({ loading, error, filteredFeed, timeFilter, setTimeFilter, selectedMeme, setSelectedMeme, loadMore, hasMore, isLoadingMore, t, logAction, favorites, toggleFavorite, blacklisted, addToBlacklist }) {
       const sentinelRef = useRef(null);
       useEffect(() => {
         const observer = new IntersectionObserver(
@@ -1943,7 +1997,7 @@
           {error && <div className="py-6 text-red-400 animate-pulse text-center">{error}</div>}
           <div className="grid gap-6"> {/* Use class-based grid for auto-fit */}
             {filteredFeed.map((m, index) => (
-              <MemeCardLiquid key={m.id} meme={m} onClick={() => setSelectedMeme(m)} className={`grid-item-liquid meme-card-liquid`} style={{ animationDelay: `${Math.random() * 0.3 + (index % 6) * 0.1}s` }} favorites={favorites} toggleFavorite={toggleFavorite} />
+              <MemeCardLiquid key={m.id} meme={m} onClick={() => setSelectedMeme(m)} className={`grid-item-liquid meme-card-liquid`} style={{ animationDelay: `${Math.random() * 0.3 + (index % 6) * 0.1}s` }} favorites={favorites} toggleFavorite={toggleFavorite} blacklisted={blacklisted} addToBlacklist={addToBlacklist} />
             ))}
           </div>
           {hasMore && (
@@ -1978,11 +2032,12 @@
         </section>
       );
     }
-    // NEW: Enhanced MemeCardLiquid with heart button and image error handling
-    function MemeCardLiquid({ meme, onClick, className, favorites = [], toggleFavorite }) {
+    // NEW: Enhanced MemeCardLiquid with heart button, broken heart button, and image error handling
+    function MemeCardLiquid({ meme, onClick, className, favorites = [], toggleFavorite, blacklisted = [], addToBlacklist }) {
       const [show, setShow] = useState(false);
       const [imageError, setImageError] = useState(false);
       const isFavorite = favorites.some(f => f.id === meme.id);
+      const isBlacklisted = blacklisted.includes(meme.id);
       return (
         <article
           className={`glass-dark p-4 overflow-hidden cursor-pointer ripple-effect-liquid ${className || ""}`}
@@ -2019,6 +2074,19 @@
             >
               <span className={`heart-icon ${isFavorite ? 'heart-filled' : ''}`}>♥</span>
             </button>
+            {/* NEW: Broken heart button below the heart */}
+            {!isBlacklisted && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent card click
+                  addToBlacklist(meme.id);
+                }}
+                className="broken-heart-btn"
+                title="Blacklist this meme (never show again)"
+              >
+                <span className="broken-heart-icon">💔</span>
+              </button>
+            )}
           </div>
           <div className="mt-3">
             <div className="text-sm font-semibold truncate">{meme.title}</div>
