@@ -761,8 +761,9 @@
     /* NEW: Broken heart button styles - positioned below the heart button */
     .broken-heart-btn {
       position: absolute;
-      top: 46px;
+      top: 50%; /* Adjusted to half the height of the card body for better positioning */
       right: 8px;
+      transform: translateY(-50%); /* Center vertically within its own height */
       background: rgba(255, 0, 0, 0.3);
       border: none;
       border-radius: 50%;
@@ -778,7 +779,7 @@
     }
     .broken-heart-btn:hover {
       background: rgba(255, 0, 0, 0.5);
-      transform: scale(1.2);
+      transform: scale(1.2) translateY(-50%);
     }
     .broken-heart-btn.blacklisting {
       animation: brokenHeartFadeOut 0.3s ease-out forwards;
