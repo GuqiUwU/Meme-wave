@@ -761,7 +761,7 @@
     /* NEW: Broken heart button styles - positioned below the heart button */
     .broken-heart-btn {
       position: absolute;
-      top: 42px;
+      top: 46px;
       right: 8px;
       background: rgba(255, 0, 0, 0.3);
       border: none;
@@ -779,6 +779,23 @@
     .broken-heart-btn:hover {
       background: rgba(255, 0, 0, 0.5);
       transform: scale(1.2);
+    }
+    .broken-heart-btn.blacklisting {
+      animation: brokenHeartFadeOut 0.3s ease-out forwards;
+    }
+    @keyframes brokenHeartFadeOut {
+      0% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+      }
+      50% {
+        opacity: 0.8;
+        transform: scale(1.2) rotate(-10deg);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(0) rotate(360deg);
+      }
     }
     .broken-heart-icon {
       font-size: 20px;
@@ -2036,6 +2053,7 @@
     function MemeCardLiquid({ meme, onClick, className, favorites = [], toggleFavorite, blacklisted = [], addToBlacklist }) {
       const [show, setShow] = useState(false);
       const [imageError, setImageError] = useState(false);
+      const [isBlacklisting, setIsBlacklisting] = useState(false);
       const isFavorite = favorites.some(f => f.id === meme.id);
       const isBlacklisted = blacklisted.includes(meme.id);
       return (
@@ -2079,9 +2097,12 @@
               <button
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent card click
-                  addToBlacklist(meme.id);
+                  setIsBlacklisting(true);
+                  setTimeout(() => {
+                    addToBlacklist(meme.id);
+                  }, 300);
                 }}
-                className="broken-heart-btn"
+                className={`broken-heart-btn ${isBlacklisting ? 'blacklisting' : ''}`}
                 title="Blacklist this meme (never show again)"
               >
                 <span className="broken-heart-icon">💔</span>
