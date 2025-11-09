@@ -802,6 +802,32 @@
       font-size: 20px;
       text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 0 #000;
     }
+    /* NEW: Trash button for blacklist page */
+    .trash-btn {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.5);
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 10;
+      color: #ff6b6b;
+    }
+    .trash-btn:hover {
+      background: rgba(255, 0, 0, 0.3);
+      transform: scale(1.2);
+    }
+    .trash-icon {
+      font-size: 20px;
+      text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 0 #000;
+    }
     /* NEW: Language selection modal styles */
     .lang-modal {
       position: fixed;
@@ -936,7 +962,7 @@
       const [showDebug, setShowDebug] = useState(false); // Debug toggle, global once enabled
       const [debugLogs, setDebugLogs] = useState([]); // Array of log messages
       const [favorites, setFavorites] = useState([]); // NEW: Favorites state
-      // NEW: Blacklist state for broken heart
+      // NEW: Blacklist state for broken heart - now stores full memes
       const [blacklisted, setBlacklisted] = useState([]);
       // NEW: Custom background state
       const [customBg, setCustomBg] = useState('');
@@ -967,7 +993,7 @@
         if (saved) {
           setFavorites(JSON.parse(saved));
         }
-        // NEW: Load blacklist from localStorage
+        // NEW: Load blacklist from localStorage - now full objects
         const savedBlacklist = localStorage.getItem('memeBlacklisted');
         if (savedBlacklist) {
           setBlacklisted(JSON.parse(savedBlacklist));
@@ -1040,7 +1066,7 @@
       useEffect(() => {
         localStorage.setItem('memeFavorites', JSON.stringify(favorites));
       }, [favorites]);
-      // NEW: Save blacklist to localStorage whenever changed
+      // NEW: Save blacklist to localStorage whenever changed - full objects
       useEffect(() => {
         localStorage.setItem('memeBlacklisted', JSON.stringify(blacklisted));
       }, [blacklisted]);
@@ -1075,11 +1101,17 @@
           }
         });
       }, []);
-      // NEW: Function to add to blacklist (remove and block forever)
-      const addToBlacklist = useCallback((memeId) => {
-        setBlacklisted(prev => [...new Set([...prev, memeId])]);
-        setForeignFeed(prev => prev.filter(m => m.id !== memeId));
-        logAction('Added to blacklist', `id: ${memeId}`);
+      // NEW: Function to add to blacklist (remove and block forever) - now full meme
+      const addToBlacklist = useCallback((meme) => {
+        if (blacklisted.some(b => b.id === meme.id)) return;
+        setBlacklisted(prev => [...prev, meme]);
+        setForeignFeed(prev => prev.filter(m => m.id !== meme.id));
+        logAction('Added to blacklist', `id: ${meme.id}`);
+      }, [blacklisted, logAction]);
+      // NEW: Function to remove from blacklist
+      const removeFromBlacklist = useCallback((memeId) => {
+        setBlacklisted(prev => prev.filter(b => b.id !== memeId));
+        logAction('Removed from blacklist', `id: ${memeId}`);
       }, [logAction]);
       // Function to log user actions (for debug panel)
       const logAction = useCallback((action, details = '') => {
@@ -1188,7 +1220,7 @@
         try {
           const fImgs = await tryFetchForeignImages('day'); // Force 'day' on refresh
           // Filter out blacklisted
-          const filteredImgs = fImgs.filter(img => !blacklisted.includes(img.id));
+          const filteredImgs = fImgs.filter(img => !blacklisted.some(b => b.id === img.id));
           const shuffled = shuffleArray(filteredImgs).slice(0, 40);
           setForeignFeed(shuffled);
           setHasMoreForeign(filteredImgs.length >= 40 || true); // Always set to true initially after refresh to enable loading more
@@ -1214,7 +1246,7 @@
           }
           const moreImgs = await tryFetchForeignImages(nextTime);
           // Filter out blacklisted
-          const filteredMoreImgs = moreImgs.filter(img => !blacklisted.includes(img.id));
+          const filteredMoreImgs = moreImgs.filter(img => !blacklisted.some(b => b.id === img.id));
           const existingIds = new Set(foreignFeed.map(m => m.id)); // Use Set for faster deduping
           const newMemes = filteredMoreImgs.filter(m => !existingIds.has(m.id));
           const toAdd = shuffleArray(newMemes).slice(0, 30); // Increase to 30 for more content per load
@@ -1243,7 +1275,7 @@
         const now = new Date();
         return foreignFeed.filter((m) => {
           // Filter out blacklisted
-          if (blacklisted.includes(m.id)) return false;
+          if (blacklisted.some(b => b.id === m.id)) return false;
           if (timeFilter === "all" || !m.date) return true;
           const mDate = new Date(m.date);
           switch (timeFilter) {
@@ -1266,6 +1298,8 @@
             hotMemes: "热梗墙",
             animeWatching: "作者在看的番",
             favorites: "我的最爱",
+            mostDisliked: "最讨厌的",
+            blacklistEmpty: "暂无最讨厌的，试试点💔添加吧！",
             boyKisser: "Boy Kisser(南通猫)",
             refresh: "刷新梗",
             unstable: "(不稳定)",
@@ -1328,6 +1362,8 @@
             hotMemes: "Hot Memes",
             animeWatching: "Anime I'm Watching",
             favorites: "My Favorites",
+            mostDisliked: "Most Disliked",
+            blacklistEmpty: "No blacklisted yet, try clicking 💔 to add some!",
             boyKisser: "Boy Kisser(oooooo u love boysssss)",
             refresh: "Refresh Memes",
             unstable: "(Unstable)",
@@ -1390,6 +1426,8 @@
             hotMemes: "ホットミーム",
             animeWatching: "見ているアニメ",
             favorites: "お気に入り",
+            mostDisliked: "最も嫌い",
+            blacklistEmpty: "ブラックリストなし。💔をクリックして追加してみてください！",
             boyKisser: "Boy Kisser",
             refresh: "ミームを更新",
             unstable: "(不安定)",
@@ -1522,6 +1560,15 @@
               </button>
               <button
                 onClick={() => {
+                  logAction('Nav clicked', 'blacklist');
+                  setRoute("blacklist");
+                }}
+                className={`px-4 py-2 ripple-effect-liquid glass-dark ${route === "blacklist" ? "bg-indigo-500/20" : ""}`}
+              >
+                {t('mostDisliked')}
+              </button>
+              <button
+                onClick={() => {
                   logAction('Nav clicked', 'anime');
                   setRoute("anime");
                 }}
@@ -1600,6 +1647,17 @@
                 }}
                 toggleFavorite={toggleFavorite}
                 blacklisted={blacklisted}
+              />
+            ) : route === "blacklist" ? (
+              <BlacklistPage
+                blacklisted={blacklisted}
+                t={t}
+                onBack={() => {
+                  logAction('Back from blacklist');
+                  setRoute("feed");
+                }}
+                toggleFavorite={toggleFavorite}
+                removeFromBlacklist={removeFromBlacklist}
               />
             ) : (
               <AnimePage onBack={() => {
@@ -1694,7 +1752,7 @@
     // NEW: FavoritesPage component
     function FavoritesPage({ favorites, t, onBack, toggleFavorite, blacklisted }) {
       const [selectedFavorite, setSelectedFavorite] = useState(null);
-      const filteredFavorites = useMemo(() => favorites.filter(fav => !blacklisted.includes(fav.id)), [favorites, blacklisted]);
+      const filteredFavorites = useMemo(() => favorites.filter(fav => !blacklisted.some(b => b.id === fav.id)), [favorites, blacklisted]);
       return (
         <section>
           <div className="flex items-center justify-between mb-6">
@@ -1708,12 +1766,38 @@
           ) : (
             <div className="grid gap-6">
               {filteredFavorites.map((m, index) => (
-                <MemeCardLiquid key={m.id} meme={m} onClick={() => setSelectedFavorite(m)} className={`grid-item-liquid meme-card-liquid`} style={{ animationDelay: `${Math.random() * 0.3 + (index % 6) * 0.1}s` }} favorites={favorites} toggleFavorite={toggleFavorite} blacklisted={blacklisted} />
+                <MemeCardLiquid key={m.id} meme={m} onClick={() => setSelectedFavorite(m)} className={`grid-item-liquid meme-card-liquid`} style={{ animationDelay: `${Math.random() * 0.3 + (index % 6) * 0.1}s` }} favorites={favorites} toggleFavorite={toggleFavorite} blacklisted={blacklisted} addToBlacklist={() => {}} removeFromBlacklist={() => {}} />
               ))}
             </div>
           )}
           {selectedFavorite && (
             <ImageModal meme={selectedFavorite} onClose={() => setSelectedFavorite(null)} t={t} />
+          )}
+        </section>
+      );
+    }
+    // NEW: BlacklistPage component
+    function BlacklistPage({ blacklisted, t, onBack, toggleFavorite, removeFromBlacklist }) {
+      const [selected, setSelected] = useState(null);
+      return (
+        <section>
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-4">
+              <button onClick={onBack} className="px-4 py-2 bg-gray-800 ripple-effect-liquid">{t('back')}</button>
+              <div className="text-xl font-semibold">{t('mostDisliked')}</div>
+            </div>
+          </div>
+          {blacklisted.length === 0 ? (
+            <div className="py-16 text-center text-gray-500">{t('blacklistEmpty')}</div>
+          ) : (
+            <div className="grid gap-6">
+              {blacklisted.map((m, index) => (
+                <MemeCardLiquid key={m.id} meme={m} onClick={() => setSelected(m)} className={`grid-item-liquid meme-card-liquid`} style={{ animationDelay: `${Math.random() * 0.3 + (index % 6) * 0.1}s` }} favorites={[]} toggleFavorite={toggleFavorite} blacklisted={blacklisted} addToBlacklist={() => {}} removeFromBlacklist={removeFromBlacklist} />
+              ))}
+            </div>
+          )}
+          {selected && (
+            <ImageModal meme={selected} onClose={() => setSelected(null)} t={t} />
           )}
         </section>
       );
@@ -2015,7 +2099,7 @@
           {error && <div className="py-6 text-red-400 animate-pulse text-center">{error}</div>}
           <div className="grid gap-6"> {/* Use class-based grid for auto-fit */}
             {filteredFeed.map((m, index) => (
-              <MemeCardLiquid key={m.id} meme={m} onClick={() => setSelectedMeme(m)} className={`grid-item-liquid meme-card-liquid`} style={{ animationDelay: `${Math.random() * 0.3 + (index % 6) * 0.1}s` }} favorites={favorites} toggleFavorite={toggleFavorite} blacklisted={blacklisted} addToBlacklist={addToBlacklist} />
+              <MemeCardLiquid key={m.id} meme={m} onClick={() => setSelectedMeme(m)} className={`grid-item-liquid meme-card-liquid`} style={{ animationDelay: `${Math.random() * 0.3 + (index % 6) * 0.1}s` }} favorites={favorites} toggleFavorite={toggleFavorite} blacklisted={blacklisted} addToBlacklist={addToBlacklist} removeFromBlacklist={() => {}} />
             ))}
           </div>
           {hasMore && (
@@ -2050,13 +2134,13 @@
         </section>
       );
     }
-    // NEW: Enhanced MemeCardLiquid with heart button, broken heart button, and image error handling
-    function MemeCardLiquid({ meme, onClick, className, favorites = [], toggleFavorite, blacklisted = [], addToBlacklist }) {
+    // NEW: Enhanced MemeCardLiquid with heart button, broken heart button, trash button, and image error handling
+    function MemeCardLiquid({ meme, onClick, className, favorites = [], toggleFavorite, blacklisted = [], addToBlacklist, removeFromBlacklist }) {
       const [show, setShow] = useState(false);
       const [imageError, setImageError] = useState(false);
       const [isBlacklisting, setIsBlacklisting] = useState(false);
       const isFavorite = favorites.some(f => f.id === meme.id);
-      const isBlacklisted = blacklisted.includes(meme.id);
+      const isBlacklisted = blacklisted.some(b => b.id === meme.id);
       return (
         <article
           className={`glass-dark p-4 overflow-hidden cursor-pointer ripple-effect-liquid ${className || ""}`}
@@ -2094,19 +2178,32 @@
               <span className={`heart-icon ${isFavorite ? 'heart-filled' : ''}`}>♥</span>
             </button>
             {/* NEW: Broken heart button below the heart */}
-            {!isBlacklisted && (
+            {!isBlacklisted && addToBlacklist && (
               <button
                 onClick={(e) => {
                   e.stopPropagation(); // Prevent card click
                   setIsBlacklisting(true);
                   setTimeout(() => {
-                    addToBlacklist(meme.id);
+                    addToBlacklist(meme);
                   }, 300);
                 }}
                 className={`broken-heart-btn ${isBlacklisting ? 'blacklisting' : ''}`}
                 title="Blacklist this meme (never show again)"
               >
                 <span className="broken-heart-icon">💔</span>
+              </button>
+            )}
+            {/* NEW: Trash button for blacklist page */}
+            {removeFromBlacklist && isBlacklisted && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent card click
+                  removeFromBlacklist(meme.id);
+                }}
+                className="trash-btn"
+                title="Remove from blacklist"
+              >
+                <span className="trash-icon">🗑️</span>
               </button>
             )}
           </div>
@@ -2626,7 +2723,7 @@
       starryRenderer.setAnimationLoop(() => {
         // 更新控制器
         if (starryControls) starryControls.update();
-        // 获取时钟对象（clock）的已经流逝的时间（t）并将他乘0.5
+        // 获取时钟对象（clock）の已经流逝的时间（t）并将他乘0.5
         // 先把时钟关了
         let t = starryClock.getElapsedTime() * 0.5;
         // 将gu.time.value 设置为t*Math.PI
