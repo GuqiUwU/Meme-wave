@@ -733,7 +733,7 @@
     .debug-panel button:hover {
       background: rgba(99, 102, 241, 1);
     }
-    /* NEW: Heart button styles */
+    /* NEW: Heart button styles - positioned at top-right */
     .heart-btn {
       position: absolute;
       top: 8px;
@@ -758,12 +758,11 @@
       font-size: 20px;
       text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 0 #000;
     }
-    /* NEW: Broken heart button styles - positioned below the heart button */
+    /* NEW: Broken heart button styles - positioned below heart with fixed distance */
     .broken-heart-btn {
       position: absolute;
-      top: 50%; /* Adjusted to half the height of the card body for better positioning */
+      top: 50px; /* Fixed 42px below heart (8px top + 32px height + 2px gap) */
       right: 8px;
-      transform: translateY(-50%); /* Center vertically within its own height */
       background: rgba(255, 0, 0, 0.3);
       border: none;
       border-radius: 50%;
@@ -779,7 +778,7 @@
     }
     .broken-heart-btn:hover {
       background: rgba(255, 0, 0, 0.5);
-      transform: scale(1.2) translateY(-50%);
+      transform: scale(1.2);
     }
     .broken-heart-btn.blacklisting {
       animation: brokenHeartFadeOut 0.3s ease-out forwards;
@@ -1776,9 +1775,10 @@
         </section>
       );
     }
-    // NEW: BlacklistPage component
+    // FIXED: BlacklistPage component - Add loading state simulation if blacklisted is empty or loading, but force render if data exists. Removed any implicit loading.
     function BlacklistPage({ blacklisted, t, onBack, toggleFavorite, removeFromBlacklist }) {
       const [selected, setSelected] = useState(null);
+      // Simulate no loading - directly render blacklisted. If empty, show empty message. Force opacity 1 for cards.
       return (
         <section>
           <div className="flex items-center justify-between mb-6">
@@ -1792,7 +1792,22 @@
           ) : (
             <div className="grid gap-6">
               {blacklisted.map((m, index) => (
-                <MemeCardLiquid key={m.id} meme={m} onClick={() => setSelected(m)} className={`grid-item-liquid meme-card-liquid`} style={{ animationDelay: `${Math.random() * 0.3 + (index % 6) * 0.1}s` }} favorites={[]} toggleFavorite={toggleFavorite} blacklisted={blacklisted} addToBlacklist={() => {}} removeFromBlacklist={removeFromBlacklist} />
+                <MemeCardLiquid 
+                  key={m.id} 
+                  meme={m} 
+                  onClick={() => setSelected(m)} 
+                  className={`grid-item-liquid meme-card-liquid`} 
+                  style={{ 
+                    animationDelay: `${Math.random() * 0.3 + (index % 6) * 0.1}s`,
+                    opacity: 1, // Force visible, no loading state
+                    visibility: 'visible'
+                  }} 
+                  favorites={[]} 
+                  toggleFavorite={toggleFavorite} 
+                  blacklisted={blacklisted} 
+                  addToBlacklist={() => {}} 
+                  removeFromBlacklist={removeFromBlacklist} 
+                />
               ))}
             </div>
           )}
@@ -2134,9 +2149,9 @@
         </section>
       );
     }
-    // NEW: Enhanced MemeCardLiquid with heart button, broken heart button, trash button, and image error handling
+    // FIXED: Enhanced MemeCardLiquid with heart button, broken heart button (fixed distance), trash button, and image error handling - force no loading state on images
     function MemeCardLiquid({ meme, onClick, className, favorites = [], toggleFavorite, blacklisted = [], addToBlacklist, removeFromBlacklist }) {
-      const [show, setShow] = useState(false);
+      const [show, setShow] = useState(true); // Force show=true immediately, no loading state
       const [imageError, setImageError] = useState(false);
       const [isBlacklisting, setIsBlacklisting] = useState(false);
       const isFavorite = favorites.some(f => f.id === meme.id);
@@ -2145,6 +2160,7 @@
         <article
           className={`glass-dark p-4 overflow-hidden cursor-pointer ripple-effect-liquid ${className || ""}`}
           onClick={onClick}
+          style={{ opacity: 1, visibility: 'visible' }} // Force visible
         >
           <div className="relative w-full aspect-[4/3] bg-gray-800 overflow-hidden transition-all duration-400 rounded-3xl">
             {imageError ? (
@@ -2165,7 +2181,7 @@
                 style={{ opacity: show ? 1 : 0 }}
               />
             )}
-            {!show && !imageError && <div className="absolute inset-0 flex items-center justify-center text-gray-500">Loading...</div>}
+            {/* Removed loading overlay - force immediate render */}
             {/* NEW: Heart button */}
             <button
               onClick={(e) => {
@@ -2177,7 +2193,7 @@
             >
               <span className={`heart-icon ${isFavorite ? 'heart-filled' : ''}`}>♥</span>
             </button>
-            {/* NEW: Broken heart button below the heart */}
+            {/* FIXED: Broken heart button - fixed top:50px for 42px distance from heart top */}
             {!isBlacklisted && addToBlacklist && (
               <button
                 onClick={(e) => {
@@ -2757,6 +2773,6 @@
       starryClock = null;
     };
   </script>
-  <h1>hi</h1>
+  <h1>miao~</h1>
 </body>
 </html>
