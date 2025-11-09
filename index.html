@@ -758,6 +758,62 @@
       font-size: 20px;
       text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 0 0 0 #000;
     }
+    /* NEW: Language selection modal styles */
+    .lang-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 2rem;
+    }
+    .lang-modal-content {
+      background: rgba(55, 65, 81, 0.95);
+      backdrop-filter: blur(30px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50px;
+      padding: 3rem 2rem;
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      color: #f9fafb;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+    body.light-mode .lang-modal-content {
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      color: #111827;
+    }
+    .lang-option {
+      display: block;
+      padding: 1rem 2rem;
+      margin: 1rem 0;
+      background: rgba(99, 102, 241, 0.2);
+      color: #f9fafb;
+      border: none;
+      border-radius: 50px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      width: 100%;
+    }
+    body.light-mode .lang-option {
+      background: rgba(99, 102, 241, 0.1);
+      color: #111827;
+    }
+    .lang-option:hover {
+      background: rgba(99, 102, 241, 0.4);
+      transform: translateY(-2px) scale(1.02);
+    }
+    .lang-title {
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100 min-h-screen">
@@ -767,6 +823,7 @@
     function MemeWaveApp() {
       const [route, setRoute] = useState("feed");
       const [lang, setLang] = useState("zh");
+      const [showLangModal, setShowLangModal] = useState(false); // NEW: Language selection modal state
       const [foreignFeed, setForeignFeed] = useState([]);
       const [videos, setVideos] = useState([]);
       const [videosLoading, setVideosLoading] = useState(false);
@@ -792,6 +849,34 @@
       const [starryEnabled, setStarryEnabled] = useState(false);
       const bodyRef = useRef(document.body);
       const debugRef = useRef(null); // Ref for resizable panel
+      // NEW: Load language preference on init
+      useEffect(() => {
+        const savedLang = localStorage.getItem('memeLang');
+        if (savedLang) {
+          setLang(savedLang);
+        } else {
+          setShowLangModal(true); // Show modal if no saved language
+        }
+        // Load favorites from localStorage on init
+        const saved = localStorage.getItem('memeFavorites');
+        if (saved) {
+          setFavorites(JSON.parse(saved));
+        }
+        // Load custom background
+        const savedBg = localStorage.getItem('memeCustomBg');
+        if (savedBg) {
+          setCustomBg(savedBg);
+        }
+        // Load starry
+        const savedStarry = localStorage.getItem('memeStarryEnabled');
+        if (savedStarry === 'true') {
+          setStarryEnabled(true);
+        }
+      }, []);
+      // NEW: Save language to localStorage whenever changed
+      useEffect(() => {
+        localStorage.setItem('memeLang', lang);
+      }, [lang]);
       // NEW: Load favorites from localStorage on init
       useEffect(() => {
         const saved = localStorage.getItem('memeFavorites');
@@ -929,6 +1014,12 @@
           setPasswordInput("");
         }
       };
+      // NEW: Handle language selection from modal
+      const handleLangSelect = (selectedLang) => {
+        setLang(selectedLang);
+        setShowLangModal(false);
+        logAction('First-time language selected', `to: ${selectedLang}`);
+      };
       // Enhanced loadFeeds with better error handling and always reset hasMoreForeign to true after refresh
       async function loadFeeds() {
         setLoading(true);
@@ -1026,7 +1117,7 @@
             back: "返回",
             animeTitle: "作者在看的番",
             videosTitle: "内置视频墙 (Bilibili Top + Douyin + YouTube)",
-            footer: "我爱哈基米   ---Giu Giu",
+            footer: "我爱哈基米 ---Giu Giu",
             animeDesc: "当自宅警备员哥哥不小心用可疑药物把自己的哥哥变成了女孩子后，展开的爆笑日常故事。",
             episodes: "Season 1",
             status: "Watching",
@@ -1223,6 +1314,10 @@
       // In settings, but since passed down
       return (
         <div className="min-h-screen">
+          {/* NEW: Language Selection Modal */}
+          {showLangModal && (
+            <LanguageModal onSelect={handleLangSelect} />
+          )}
           <header className="p-4 flex items-center justify-between transition-all duration-400 flex-wrap">
             <h1 className="text-2xl font-bold tracking-tight ripple-effect-liquid">{t('title')}</h1>
             <nav className="flex items-center gap-2 flex-wrap justify-center">
@@ -1381,6 +1476,31 @@
               </div>
             </div>
           )}
+        </div>
+      );
+    }
+    // NEW: Language Selection Modal Component
+    function LanguageModal({ onSelect }) {
+      const languages = [
+        { code: 'zh', name: '中文 (Chinese)' },
+        { code: 'en', name: 'English' },
+        { code: 'ja', name: '日本語 (Japanese)' }
+      ];
+      return (
+        <div className="lang-modal">
+          <div className="lang-modal-content glass-dark">
+            <h2 className="lang-title">Welcome to MemeWave! Select Your Language</h2>
+            <p className="text-sm mb-4 opacity-90">欢迎来到 MemeWave！请选择您的语言 / Welcome! Choose your language</p>
+            {languages.map((lang) => (
+              <button
+                key={lang.code}
+                onClick={() => onSelect(lang.code)}
+                className="lang-option ripple-effect-liquid"
+              >
+                {lang.name}
+              </button>
+            ))}
+          </div>
         </div>
       );
     }
@@ -2324,5 +2444,3 @@
   </script>
 </body>
 </html>
-
-
