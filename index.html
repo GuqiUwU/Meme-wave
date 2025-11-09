@@ -814,6 +814,42 @@
       margin-bottom: 2rem;
       font-weight: 600;
     }
+    /* NEW: Low performance mode - disable animations and transitions */
+    body.low-performance * {
+      animation: none !important;
+      transition: none !important;
+    }
+    body.low-performance .grid-item-liquid,
+    body.low-performance .card-enter-liquid,
+    body.low-performance .loading-pulse-liquid,
+    body.low-performance .modal-fade-liquid,
+    body.low-performance .heart-filled,
+    body.low-performance .bill-hit,
+    body.low-performance .bill-shake,
+    body.low-performance button:hover,
+    body.low-performance button:active,
+    body.low-performance .meme-card-liquid:hover,
+    body.low-performance .anime-card-liquid:hover,
+    body.low-performance .video-card-liquid:hover,
+    body.low-performance .bill-card:hover,
+    body.low-performance select:hover,
+    body.low-performance select:focus,
+    body.low-performance .minigame-gif:hover,
+    body.low-performance .heart-btn:hover,
+    body.low-performance .load-more-btn:hover,
+    body.low-performance .language-cycle-btn:hover,
+    body.low-performance .lang-option:hover,
+    body.low-performance .ripple-effect-liquid:hover,
+    body.low-performance .settings-panel.closing {
+      transform: none !important;
+      box-shadow: none !important;
+    }
+    body.low-performance .progress-fill-liquid {
+      animation: none !important;
+    }
+    body.low-performance .loading-dots span {
+      animation: none !important;
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-gray-100 min-h-screen">
@@ -824,6 +860,7 @@
       const [route, setRoute] = useState("feed");
       const [lang, setLang] = useState("zh");
       const [showLangModal, setShowLangModal] = useState(false); // NEW: Language selection modal state
+      const [performanceMode, setPerformanceMode] = useState('auto'); // NEW: Performance mode: 'auto', 'high', 'low'
       const [foreignFeed, setForeignFeed] = useState([]);
       const [videos, setVideos] = useState([]);
       const [videosLoading, setVideosLoading] = useState(false);
@@ -857,6 +894,17 @@
         } else {
           setShowLangModal(true); // Show modal if no saved language
         }
+        // NEW: Load performance mode
+        const savedPerf = localStorage.getItem('memePerformanceMode');
+        if (savedPerf) {
+          setPerformanceMode(savedPerf);
+        } else {
+          // Auto-detect performance
+          detectPerformance().then(detected => {
+            setPerformanceMode(detected);
+            localStorage.setItem('memePerformanceMode', detected);
+          });
+        }
         // Load favorites from localStorage on init
         const saved = localStorage.getItem('memeFavorites');
         if (saved) {
@@ -873,6 +921,40 @@
           setStarryEnabled(true);
         }
       }, []);
+      // NEW: Performance detection function
+      async function detectPerformance() {
+        return new Promise((resolve) => {
+          let frames = 0;
+          let lastTime = performance.now();
+          let startTime = lastTime;
+          const duration = 1000; // Test for 1 second
+          let animationId;
+
+          const testLoop = () => {
+            const now = performance.now();
+            frames++;
+            if (now - lastTime >= 16.67) { // ~60fps interval
+              lastTime = now;
+            }
+            if (now - startTime < duration) {
+              animationId = requestAnimationFrame(testLoop);
+            } else {
+              cancelAnimationFrame(animationId);
+              const fps = (frames / (now - startTime)) * 1000;
+              console.log(`Performance test FPS: ${fps.toFixed(2)}`);
+              resolve(fps > 30 ? 'high' : 'low');
+            }
+          };
+
+          animationId = requestAnimationFrame(testLoop);
+        });
+      }
+      // NEW: Apply performance mode to body class
+      useEffect(() => {
+        const isLow = performanceMode === 'low' || (performanceMode === 'auto' && navigator.hardwareConcurrency < 4);
+        bodyRef.current.classList.toggle('low-performance', isLow);
+        localStorage.setItem('memePerformanceMode', performanceMode);
+      }, [performanceMode]);
       // NEW: Save language to localStorage whenever changed
       useEffect(() => {
         localStorage.setItem('memeLang', lang);
@@ -935,6 +1017,14 @@
         const log = `[${timestamp}] ${action}: ${details}`;
         setDebugLogs(prev => [...prev.slice(-50), log]); // Keep last 50 logs
       }, []);
+      // NEW: Toggle performance mode
+      const togglePerformanceMode = () => {
+        const modes = ['auto', 'high', 'low'];
+        const currentIndex = modes.indexOf(performanceMode);
+        const nextMode = modes[(currentIndex + 1) % modes.length];
+        setPerformanceMode(nextMode);
+        logAction('Performance mode cycled', `to: ${nextMode}`);
+      };
       useEffect(() => {
         loadFeeds();
       }, []);
@@ -1152,6 +1242,10 @@
             chapter1: "第一章:起始",
             content1: "上次写的时候不会弄api key， 请了gpt弄，结果全是风景XD，grok帮我弄好了",
             starrySkyMode: "星空模式(星球)",
+            performanceMode: "性能模式",
+            auto: "自动",
+            high: "高性能",
+            low: "低性能",
           },
           en: {
             title: "MemeWave",
@@ -1210,6 +1304,10 @@
             chapter1: "Chapter 1: Start",
             content1: "Content being written",
             starrySkyMode: "Starry Sky Mode",
+            performanceMode: "Performance Mode",
+            auto: "Auto",
+            high: "High",
+            low: "Low",
           },
           ja: {
             title: "MemeWave",
@@ -1268,6 +1366,10 @@
             chapter1: "第1章:開始",
             content1: "conitsiwa wadaxiwa GiuGIu",
             starrySkyMode: "星空モード",
+            performanceMode: "パフォーマンスモード",
+            auto: "自動",
+            high: "高性能",
+            low: "低性能",
           }
         };
         return translations[lang][key] || key;
@@ -1286,6 +1388,9 @@
         logAction('Language cycled', `to: ${nextLang}`);
         setLang(nextLang);
       };
+      // NEW: Performance mode names
+      const perfModes = ['auto', 'high', 'low'];
+      const currentPerfName = performanceMode === 'auto' ? t('auto') : performanceMode === 'high' ? t('high') : t('low');
       const boyKisserMeme = {
         id: "boykisser",
         title: t('boyKisser'),
@@ -1447,6 +1552,9 @@
                 setCustomBg={setCustomBg}
                 starryEnabled={starryEnabled}
                 onToggleStarry={setStarryEnabled}
+                performanceMode={performanceMode}
+                onCyclePerf={togglePerformanceMode}
+                perfName={currentPerfName}
                 onClose={() => {
                   logAction('Settings closed');
                   setShowSettings(false);
@@ -1530,8 +1638,8 @@
         </section>
       );
     }
-    // Enhanced SettingsPanel with sections for admin, credits, custom bg
-    function SettingsPanel({ theme, onToggleTheme, lang, onCycleLang, langNames, languages, customBg, setCustomBg, starryEnabled, onToggleStarry, onClose, t, billHitCount, setBillHitCount, logAction, showDebug, onToggleDebug, debugLogs }) {
+    // Enhanced SettingsPanel with sections for admin, credits, custom bg, and NEW performance mode
+    function SettingsPanel({ theme, onToggleTheme, lang, onCycleLang, langNames, languages, customBg, setCustomBg, starryEnabled, onToggleStarry, performanceMode, onCyclePerf, perfName, onClose, t, billHitCount, setBillHitCount, logAction, showDebug, onToggleDebug, debugLogs }) {
       const [showSettings, setShowSettings] = useState(true); // Local state for animation class
       const [previewBg, setPreviewBg] = useState('');
       const [showCustomSection, setShowCustomSection] = useState(false);
@@ -1605,6 +1713,18 @@
                 >
                   <span className="toggle-icon">{theme === 'light' ? '☀️' : '🌙'}</span>
                 </div>
+              </div>
+            </div>
+            {/* NEW: Performance Mode Section */}
+            <div className="settings-section">
+              <div className="settings-item">
+                <span>{t('performanceMode')}</span>
+                <button
+                  className="language-cycle-btn"
+                  onClick={onCyclePerf}
+                >
+                  {perfName}
+                </button>
               </div>
             </div>
             {/* Language Section */}
