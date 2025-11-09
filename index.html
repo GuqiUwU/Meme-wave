@@ -844,6 +844,16 @@
       transform: none !important;
       box-shadow: none !important;
     }
+    /* FIXED: Ensure cards are visible in low perf mode by forcing final state */
+    body.low-performance .grid-item-liquid,
+    body.low-performance .meme-card-liquid,
+    body.low-performance .anime-card-liquid,
+    body.low-performance .video-card-liquid,
+    body.low-performance .bill-card {
+      opacity: 1 !important;
+      transform: none !important;
+      visibility: visible !important;
+    }
     body.low-performance .progress-fill-liquid {
       animation: none !important;
     }
@@ -929,7 +939,6 @@
           let startTime = lastTime;
           const duration = 1000; // Test for 1 second
           let animationId;
-
           const testLoop = () => {
             const now = performance.now();
             frames++;
@@ -945,7 +954,6 @@
               resolve(fps > 30 ? 'high' : 'low');
             }
           };
-
           animationId = requestAnimationFrame(testLoop);
         });
       }
@@ -2562,5 +2570,6 @@
       starryClock = null;
     };
   </script>
+  <h1>hi</h1>
 </body>
 </html>
