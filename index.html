@@ -1334,6 +1334,7 @@
             favoritesEmpty: "暂无最爱，前往热梗墙收藏吧！",
             admin: "管理员",
             credits: "制作名单",
+            thanksList: "感谢名单", // NEW: Added key for thanks list section title
             customBg: "自定义背景",
             uploadBg: "上传背景",
             applyBg: "应用",
@@ -1398,6 +1399,7 @@
             favoritesEmpty: "No favorites yet, go to hot memes to add some!",
             admin: "Admin",
             credits: "Credits",
+            thanksList: "Thanks List", // NEW: Added key for thanks list section title
             customBg: "Custom Background",
             uploadBg: "Upload Background",
             applyBg: "Apply",
@@ -1462,6 +1464,7 @@
             favoritesEmpty: "お気に入りなし。ホットミームから追加しよう！",
             admin: "Admin",
             credits: "クレジット",
+            thanksList: "感謝リスト", // NEW: Added key for thanks list section title
             customBg: "カスタム背景",
             uploadBg: "背景をアップロード",
             applyBg: "適用",
@@ -1792,21 +1795,21 @@
           ) : (
             <div className="grid gap-6">
               {blacklisted.map((m, index) => (
-                <MemeCardLiquid 
-                  key={m.id} 
-                  meme={m} 
-                  onClick={() => setSelected(m)} 
-                  className={`grid-item-liquid meme-card-liquid`} 
-                  style={{ 
+                <MemeCardLiquid
+                  key={m.id}
+                  meme={m}
+                  onClick={() => setSelected(m)}
+                  className={`grid-item-liquid meme-card-liquid`}
+                  style={{
                     animationDelay: `${Math.random() * 0.3 + (index % 6) * 0.1}s`,
                     opacity: 1, // Force visible, no loading state
                     visibility: 'visible'
-                  }} 
-                  favorites={[]} 
-                  toggleFavorite={toggleFavorite} 
-                  blacklisted={blacklisted} 
-                  addToBlacklist={() => {}} 
-                  removeFromBlacklist={removeFromBlacklist} 
+                  }}
+                  favorites={[]}
+                  toggleFavorite={toggleFavorite}
+                  blacklisted={blacklisted}
+                  addToBlacklist={() => {}}
+                  removeFromBlacklist={removeFromBlacklist}
                 />
               ))}
             </div>
@@ -1825,6 +1828,7 @@
       const [showAdminSection, setShowAdminSection] = useState(false);
       const [showCreditsSection, setShowCreditsSection] = useState(false);
       const [showDevDiarySection, setShowDevDiarySection] = useState(false);
+      const [showThanksSection, setShowThanksSection] = useState(false); // NEW: State for thanks list section toggle
       const [showAdminPassword, setShowAdminPassword] = useState(false);
       const [adminPasswordInput, setAdminPasswordInput] = useState('');
       const [showAdminContent, setShowAdminContent] = useState(false);
@@ -2033,6 +2037,22 @@
                     <li><strong>Helpers:</strong> GPT and Grok (just API)</li>
                     <li><strong>IDK:</strong> IDK</li>
                     <li><strong>{t('victim')}:</strong> {t('victimName')}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            {/* NEW: Thanks List Section - Added as per user request: A new collapsible section for "感谢名单" with a sample list of names. User can edit/add names directly in the JSX. */}
+            <div className="settings-section">
+              <div className="section-header" onClick={() => setShowThanksSection(!showThanksSection)}>
+                <span>{t('thanksList')}</span>
+                <span>▼</span>
+              </div>
+              <div className={`section-content ${showThanksSection ? 'open' : ''}`}>
+                <div className="glass-dark p-4 mt-2">
+                  <h3 className="text-xl font-bold mb-2">{t('thanksList')}</h3>
+                  <ul className="space-y-2 text-sm">
+                    <li>还没有赞助者捏;-;</li>
+                    {/* TODO: Add more names here as needed. This is a static list; edit in code to customize. */}
                   </ul>
                 </div>
               </div>
@@ -2777,4 +2797,3 @@
   <h2>v.1.7</h2>
 </body>
 </html>
-
